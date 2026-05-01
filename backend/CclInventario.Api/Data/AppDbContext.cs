@@ -18,8 +18,10 @@ public class AppDbContext : DbContext
         {
             e.ToTable("productos");
             e.HasKey(p => p.Id);
-            e.Property(p => p.Nombre).HasMaxLength(200).IsRequired();
-            e.Property(p => p.Cantidad).IsRequired();
+            // PostgreSQL sin comillas usa minúsculas; el SQL manual y PG crean id/nombre/cantidad.
+            e.Property(p => p.Id).HasColumnName("id");
+            e.Property(p => p.Nombre).HasColumnName("nombre").HasMaxLength(200).IsRequired();
+            e.Property(p => p.Cantidad).HasColumnName("cantidad").IsRequired();
         });
     }
 }
