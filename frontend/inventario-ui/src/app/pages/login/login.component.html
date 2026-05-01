@@ -1,0 +1,30 @@
+<section class="card">
+  <h1>Inventario CCL</h1>
+  <p class="muted">Ingrese usuario y clave de demostración.</p>
+
+  <form [formGroup]="form" (ngSubmit)="submit()">
+    <label>
+      Usuario
+      <input type="text" formControlName="usuario" autocomplete="username" />
+    </label>
+    @if (form.controls.usuario.invalid && form.controls.usuario.touched) {
+      <span class="err">El usuario es obligatorio.</span>
+    }
+
+    <label>
+      Clave
+      <input type="password" formControlName="clave" autocomplete="current-password" />
+    </label>
+    @if (form.controls.clave.invalid && form.controls.clave.touched) {
+      <span class="err">La clave es obligatoria.</span>
+    }
+
+    @if (errorMessage) {
+      <p class="err">{{ errorMessage }}</p>
+    }
+
+    <button type="submit" [disabled]="loading">
+      {{ loading ? 'Ingresando…' : 'Ingresar' }}
+    </button>
+  </form>
+</section>
