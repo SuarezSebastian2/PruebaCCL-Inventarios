@@ -1,0 +1,31 @@
+<section class="panel">
+  <header>
+    <h1>Inventario actual</h1>
+    <button type="button" (click)="load()" [disabled]="loading">Actualizar</button>
+  </header>
+
+  @if (loading) {
+    <p class="muted">Cargando…</p>
+  } @else if (error) {
+    <p class="err">{{ error }}</p>
+  } @else {
+    <table>
+      <thead>
+        <tr>
+          <th>Id</th>
+          <th>Producto</th>
+          <th>Cantidad</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (p of productos; track p.id) {
+          <tr>
+            <td>{{ p.id }}</td>
+            <td>{{ p.nombre }}</td>
+            <td>{{ p.cantidad }}</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  }
+</section>
