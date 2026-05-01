@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { ApiEndpointFactory } from './patterns/factory/api-endpoint.factory';
@@ -17,10 +17,8 @@ export interface MovimientoRequest {
 
 @Injectable({ providedIn: 'root' })
 export class InventarioApiService {
-  constructor(
-    private readonly http: HttpClient,
-    private readonly endpoints: ApiEndpointFactory
-  ) {}
+  private readonly http = inject(HttpClient);
+  private readonly endpoints = inject(ApiEndpointFactory);
 
   inventario(): Observable<ProductoInventario[]> {
     return this.http.get<ProductoInventario[]>(this.endpoints.inventario());

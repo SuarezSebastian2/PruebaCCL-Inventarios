@@ -1,4 +1,4 @@
-import { Injectable, signal } from '@angular/core';
+import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { tap } from 'rxjs/operators';
@@ -14,13 +14,11 @@ export interface LoginResponse {
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-  readonly token = signal<string | null>(this.readToken());
+  private readonly http = inject(HttpClient);
+  private readonly router = inject(Router);
+  private readonly endpoints = inject(ApiEndpointFactory);
 
-  constructor(
-    private readonly http: HttpClient,
-    private readonly router: Router,
-    private readonly endpoints: ApiEndpointFactory
-  ) {}
+  readonly token = signal<string | null>(this.readToken());
 
   login(usuario: string, clave: string) {
     return this.http.post<LoginResponse>(this.endpoints.login(), { usuario, clave }).pipe(

@@ -5,7 +5,6 @@ import { InventoryUiObserver, InventoryUiEvent } from './inventory-ui-observer.m
 @Injectable({ providedIn: 'root' })
 export class ConsoleInventoryUiObserver implements InventoryUiObserver {
   onInventoryEvent(event: InventoryUiEvent): void {
-    // eslint-disable-next-line no-console
     console.debug(
       `[Inventory UI #${event.correlationId}] ${event.tipo} · ${event.detail}`
     );

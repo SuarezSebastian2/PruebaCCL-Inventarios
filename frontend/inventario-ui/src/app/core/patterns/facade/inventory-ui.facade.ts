@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { Observable, tap } from 'rxjs';
 import {
   InventarioApiService,
@@ -16,14 +16,13 @@ import { MovimientoMessageStrategyFactory } from '../strategy/movimiento-message
  */
 @Injectable({ providedIn: 'root' })
 export class InventoryUiFacade {
-  constructor(
-    private readonly api: InventarioApiService,
-    private readonly subject: InventorySubjectService,
-    private readonly correlation: CorrelationIdService,
-    private readonly messages: MovimientoMessageStrategyFactory,
-    consoleObserver: ConsoleInventoryUiObserver
-  ) {
-    this.subject.attach(consoleObserver);
+  private readonly api = inject(InventarioApiService);
+  private readonly subject = inject(InventorySubjectService);
+  private readonly correlation = inject(CorrelationIdService);
+  private readonly messages = inject(MovimientoMessageStrategyFactory);
+
+  constructor() {
+    this.subject.attach(inject(ConsoleInventoryUiObserver));
   }
 
   listInventario(): Observable<ProductoInventario[]> {
