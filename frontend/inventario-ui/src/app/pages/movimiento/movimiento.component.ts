@@ -1,10 +1,9 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import {
-  InventarioApiService,
-  ProductoInventario
-} from '../../core/inventario-api.service';
+import { ProductoInventario } from '../../core/inventario-api.service';
+import { InventoryUiFacade } from '../../core/patterns/facade/inventory-ui.facade';
+import { MovimientoMessageStrategyFactory } from '../../core/patterns/strategy/movimiento-message.strategy';
 
 @Component({
   selector: 'app-movimiento',
@@ -15,7 +14,8 @@ import {
 })
 export class MovimientoComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
-  private readonly api = inject(InventarioApiService);
+  private readonly inventory = inject(InventoryUiFacade);
+  private readonly messageStrategies = inject(MovimientoMessageStrategyFactory);
 
   productos: ProductoInventario[] = [];
   loadingList = false;
@@ -31,7 +31,7 @@ export class MovimientoComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadingList = true;
-    this.api.inventario().subscribe({
+    this.inventory.listInventario().subscribe({
       next: (data) => {
         this.productos = data;
         this.loadingList = false;
@@ -56,28 +56,30 @@ export class MovimientoComponent implements OnInit {
       return;
     }
     this.submitting = true;
-    this.api
-      .movimiento({
-        productoId,
-        tipo: raw.tipo,
-        cantidad: raw.cantidad
-      })
-      .subscribe({
-        next: (p) => {
-          this.submitting = false;
-          this.success = `Movimiento registrado. ${p.nombre}: ${p.cantidad} unidades.`;
-          this.refreshList();
-        },
-        error: (err) => {
-          this.submitting = false;
-          const msg = err?.error?.message;
-          this.error = typeof msg === 'string' ? msg : 'No se pudo registrar el movimiento.';
-        }
-      });
+    const body = {
+      productoId,
+      tipo: raw.tipo,
+      cantidad: raw.cantidad
+    };
+    this.inventory.registrarMovimiento(body).subscribe({
+      next: (p) => {
+        this.submitting = false;
+        const strategy = this.messageStrategies.get(raw.tipo);
+        this.success =
+          strategy?.buildMessage(p, raw.cantidad) ??
+          `Movimiento registrado. ${p.nombre}: ${p.cantidad} unidades.`;
+        this.refreshList();
+      },
+      error: (err) => {
+        this.submitting = false;
+        const msg = err?.error?.message;
+        this.error = typeof msg === 'string' ? msg : 'No se pudo registrar el movimiento.';
+      }
+    });
   }
 
   private refreshList(): void {
-    this.api.inventario().subscribe({
+    this.inventory.listInventario().subscribe({
       next: (data) => (this.productos = data)
     });
   }

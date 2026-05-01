@@ -78,6 +78,8 @@ npm start
 
 Abre **http://localhost:4200**. La URL de la API está en `src/app/core/environment.ts` (`apiBaseUrl`); debe coincidir con la API (por defecto `http://localhost:5088`). La API tiene **CORS** habilitado para `http://localhost:4200`.
 
+En el cliente Angular (`src/app/core/patterns/`) hay una versión **explícita** alineada al backend: **Singleton** (`CorrelationIdService`), **Factory** (`ApiEndpointFactory`), **Strategy** + factory de mensajes (`MovimientoMessageStrategyFactory`), **Observer** (`InventorySubjectService` + `ConsoleInventoryUiObserver`) y **Facade** (`InventoryUiFacade`). Las pantallas de inventario/movimiento consumen el facade; `AuthService` y el interceptor usan la factory de URLs.
+
 ## Estructura del repositorio
 
 ```text

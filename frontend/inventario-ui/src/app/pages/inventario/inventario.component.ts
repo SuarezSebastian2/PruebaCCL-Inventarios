@@ -1,6 +1,7 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { InventarioApiService, ProductoInventario } from '../../core/inventario-api.service';
+import { ProductoInventario } from '../../core/inventario-api.service';
+import { InventoryUiFacade } from '../../core/patterns/facade/inventory-ui.facade';
 
 @Component({
   selector: 'app-inventario',
@@ -10,7 +11,7 @@ import { InventarioApiService, ProductoInventario } from '../../core/inventario-
   styleUrl: './inventario.component.css'
 })
 export class InventarioComponent implements OnInit {
-  private readonly api = inject(InventarioApiService);
+  private readonly inventory = inject(InventoryUiFacade);
 
   productos: ProductoInventario[] = [];
   loading = false;
@@ -23,7 +24,7 @@ export class InventarioComponent implements OnInit {
   load(): void {
     this.error = '';
     this.loading = true;
-    this.api.inventario().subscribe({
+    this.inventory.listInventario().subscribe({
       next: (data) => {
         this.productos = data;
         this.loading = false;

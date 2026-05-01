@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { environment } from './environment';
+import { ApiEndpointFactory } from './patterns/factory/api-endpoint.factory';
 
 export interface ProductoInventario {
   id: number;
@@ -17,15 +17,16 @@ export interface MovimientoRequest {
 
 @Injectable({ providedIn: 'root' })
 export class InventarioApiService {
-  private readonly base = `${environment.apiBaseUrl}/productos`;
-
-  constructor(private readonly http: HttpClient) {}
+  constructor(
+    private readonly http: HttpClient,
+    private readonly endpoints: ApiEndpointFactory
+  ) {}
 
   inventario(): Observable<ProductoInventario[]> {
-    return this.http.get<ProductoInventario[]>(`${this.base}/inventario`);
+    return this.http.get<ProductoInventario[]>(this.endpoints.inventario());
   }
 
   movimiento(body: MovimientoRequest): Observable<ProductoInventario> {
-    return this.http.post<ProductoInventario>(`${this.base}/movimiento`, body);
+    return this.http.post<ProductoInventario>(this.endpoints.movimiento(), body);
   }
 }

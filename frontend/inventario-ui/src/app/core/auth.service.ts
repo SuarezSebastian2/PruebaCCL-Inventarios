@@ -2,7 +2,7 @@ import { Injectable, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { tap } from 'rxjs/operators';
-import { environment } from './environment';
+import { ApiEndpointFactory } from './patterns/factory/api-endpoint.factory';
 
 const TOKEN_KEY = 'ccl_inv_token';
 
@@ -18,12 +18,12 @@ export class AuthService {
 
   constructor(
     private readonly http: HttpClient,
-    private readonly router: Router
+    private readonly router: Router,
+    private readonly endpoints: ApiEndpointFactory
   ) {}
 
   login(usuario: string, clave: string) {
-    const url = `${environment.apiBaseUrl}/auth/login`;
-    return this.http.post<LoginResponse>(url, { usuario, clave }).pipe(
+    return this.http.post<LoginResponse>(this.endpoints.login(), { usuario, clave }).pipe(
       tap((res) => {
         localStorage.setItem(TOKEN_KEY, res.token);
         this.token.set(res.token);
