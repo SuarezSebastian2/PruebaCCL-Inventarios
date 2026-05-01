@@ -34,11 +34,11 @@ builder.Services.AddSingleton<IInventoryChangeNotifier, InventoryChangeNotifier>
 // --- GoF Facade (orquesta DbContext scoped) ---
 builder.Services.AddScoped<IInventoryFacade, InventoryFacade>();
 
-// --- JWT: opciones nombradas vía Factory ---
-builder.Services.AddSingleton<IConfigureNamedOptions<JwtBearerOptions>, JwtBearerOptionsConfigurer>();
-
+// --- JWT: registro del esquema y luego factory de validación (orden importa para opciones nombradas) ---
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer();
+
+builder.Services.AddSingleton<IConfigureNamedOptions<JwtBearerOptions>, JwtBearerOptionsConfigurer>();
 
 builder.Services.AddAuthorization();
 

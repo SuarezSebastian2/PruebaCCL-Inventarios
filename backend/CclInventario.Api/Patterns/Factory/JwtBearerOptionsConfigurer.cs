@@ -4,7 +4,9 @@ using Microsoft.Extensions.Options;
 namespace CclInventario.Api.Patterns.Factory;
 
 /// <summary>
-/// Conecta la <see cref="IJwtBearerConfigurationFactory"/> con el pipeline de autenticación JWT (opciones nombradas).
+/// Conecta la <see cref="IJwtBearerConfigurationFactory"/> con el pipeline JWT.
+/// Debe registrarse después de AddJwtBearer: el nombre de opciones no siempre coincide con el esquema,
+/// por eso se aplican siempre los parámetros de validación del factory.
 /// </summary>
 public sealed class JwtBearerOptionsConfigurer : IConfigureNamedOptions<JwtBearerOptions>
 {
@@ -15,10 +17,7 @@ public sealed class JwtBearerOptionsConfigurer : IConfigureNamedOptions<JwtBeare
 
     public void Configure(string? name, JwtBearerOptions options)
     {
-        if (name == JwtBearerDefaults.AuthenticationScheme)
-        {
-            options.TokenValidationParameters = _factory.CreateValidationParameters();
-        }
+        options.TokenValidationParameters = _factory.CreateValidationParameters();
     }
 
     public void Configure(JwtBearerOptions options) =>
