@@ -20,15 +20,14 @@ Aplicación web de **inventario** para la prueba técnica CCL: autenticación **
 
 2. Ajusta la cadena en `backend/CclInventario.Api/appsettings.json` (`ConnectionStrings:Default`) con tu **host**, **puerto**, **usuario** y **contraseña**.
 
-3. Al **arrancar la API**, EF Core ejecuta `Database.EnsureCreatedAsync()`: crea la tabla **`productos`** (`id`, `nombre`, `cantidad`) **sin** cadena de migraciones compleja, según el enunciado.
+3. **Esquema `productos`:** al **arrancar la API**, EF Core ejecuta `Database.EnsureCreatedAsync()` y crea la tabla si la base existe. **O bien** puedes crear base + tabla con el script (ver paso 4) y luego arrancar la API.
 
-4. **Datos iniciales manuales:** con la base creada y la tabla ya existente, ejecuta el script SQL del repositorio (desde `psql`, pgAdmin o tu herramienta preferida):
+4. **Script SQL manual** `database/seed-manual.sql` (desde `psql`, pgAdmin, etc.):
 
-   ```text
-   database/seed-manual.sql
-   ```
+   - **BLOQUE 1** (solo conectado a la base **`postgres`**): crea la base `ccl_inventario` (omítelo si ya existe).
+   - **BLOQUE 2 y 3** (solo conectado a **`ccl_inventario`**): crea la tabla `productos` si no está (`IF NOT EXISTS`) e inserta datos de ejemplo.
 
-   El script es idempotente: solo inserta filas si la tabla `productos` está vacía.
+   El `INSERT` es idempotente: no duplica filas si la tabla ya tiene datos.
 
 ## Credenciales de demostración (login)
 
