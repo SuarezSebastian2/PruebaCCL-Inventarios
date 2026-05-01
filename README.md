@@ -48,6 +48,12 @@ cd backend/CclInventario.Api
 dotnet run
 ```
 
+**Tests unitarios (xUnit):**
+
+```powershell
+dotnet test backend/CclInventario.sln
+```
+
 Por defecto escucha en **http://localhost:5088** (perfil `http` en `launchSettings.json`). Swagger en desarrollo: `http://localhost:5088/swagger`.
 
 Endpoints principales (como en el enunciado):
