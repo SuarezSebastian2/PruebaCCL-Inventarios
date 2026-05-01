@@ -1,0 +1,26 @@
+# .NET
+bin/
+obj/
+*.user
+*.suo
+.vs/
+*.DotSettings.user
+**/appsettings.*.local.json
+
+# Node / Angular
+node_modules/
+frontend/**/dist/
+frontend/**/.angular/
+*.log
+npm-debug.log*
+
+# OS / IDE
+.DS_Store
+Thumbs.db
+.idea/
+*.swp
+*.swo
+.qodo/
+
+# PDF previews / local assets (optional)
+_pdf_preview/

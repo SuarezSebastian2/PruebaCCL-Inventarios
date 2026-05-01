@@ -1,0 +1,6 @@
+#!/bin/sh
+# Quita pies añadidos por herramientas (p. ej. "Made-with: Cursor") del mensaje final.
+msgfile="$1"
+[ -f "$msgfile" ] || exit 0
+grep -v "Made-with: Cursor" "$msgfile" > "$msgfile.tmp" && mv -f "$msgfile.tmp" "$msgfile"
+exit 0
