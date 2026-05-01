@@ -1,0 +1,17 @@
+<div class="layout">
+  <header class="topbar">
+    <a routerLink="/inventario" class="brand">CCL Inventario</a>
+    <nav>
+      @if (auth.isAuthenticated()) {
+        <a routerLink="/inventario" routerLinkActive="active">Inventario</a>
+        <a routerLink="/movimiento" routerLinkActive="active">Movimiento</a>
+        <button type="button" class="linkish" (click)="auth.logout()">Salir</button>
+      } @else {
+        <a routerLink="/login" routerLinkActive="active">Ingresar</a>
+      }
+    </nav>
+  </header>
+  <main class="content">
+    <router-outlet />
+  </main>
+</div>
