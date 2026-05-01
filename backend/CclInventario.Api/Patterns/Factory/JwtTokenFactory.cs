@@ -5,13 +5,16 @@ using CclInventario.Api.Options;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 
-namespace CclInventario.Api.Services;
+namespace CclInventario.Api.Patterns.Factory;
 
-public class JwtTokenBuilder
+/// <summary>
+/// GoF Factory + Singleton (vida única vía DI): produce instancias lógicas de token firmado.
+/// </summary>
+public sealed class JwtTokenFactory : IJwtTokenFactory
 {
     private readonly JwtOptions _options;
 
-    public JwtTokenBuilder(IOptions<JwtOptions> options) =>
+    public JwtTokenFactory(IOptions<JwtOptions> options) =>
         _options = options.Value;
 
     public (string Token, int ExpiresInSeconds) CreateToken(string usuario)

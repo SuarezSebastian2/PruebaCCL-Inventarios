@@ -1,4 +1,5 @@
 using CclInventario.Api.Dtos;
+using CclInventario.Api.Patterns.Factory;
 using CclInventario.Api.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -9,13 +10,13 @@ namespace CclInventario.Api.Controllers;
 [Route("auth")]
 public class AuthController : ControllerBase
 {
-    private readonly DemoUserStore _users;
-    private readonly JwtTokenBuilder _jwt;
+    private readonly IDemoUserStore _users;
+    private readonly IJwtTokenFactory _tokenFactory;
 
-    public AuthController(DemoUserStore users, JwtTokenBuilder jwt)
+    public AuthController(IDemoUserStore users, IJwtTokenFactory tokenFactory)
     {
         _users = users;
-        _jwt = jwt;
+        _tokenFactory = tokenFactory;
     }
 
     /// <summary>Autenticación con credenciales de demostración; devuelve JWT Bearer.</summary>
@@ -36,7 +37,7 @@ public class AuthController : ControllerBase
             return Unauthorized(new { message = "Usuario o clave incorrectos." });
         }
 
-        var (token, expiresIn) = _jwt.CreateToken(request.Usuario);
+        var (token, expiresIn) = _tokenFactory.CreateToken(request.Usuario);
         return Ok(new LoginResponse
         {
             Token = token,

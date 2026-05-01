@@ -6,7 +6,7 @@ namespace CclInventario.Api.Services;
 /// <summary>
 /// Valida credenciales contra la lista configurada (equivalente a credenciales fijas en memoria).
 /// </summary>
-public class DemoUserStore
+public sealed class DemoUserStore : IDemoUserStore
 {
     private readonly HashSet<(string User, string Pass)> _users;
 

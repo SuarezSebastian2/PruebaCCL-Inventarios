@@ -1,8 +1,7 @@
-using CclInventario.Api.Data;
 using CclInventario.Api.Dtos;
+using CclInventario.Api.Patterns.Facade;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace CclInventario.Api.Controllers;
 
@@ -11,26 +10,16 @@ namespace CclInventario.Api.Controllers;
 [Authorize]
 public class ProductosController : ControllerBase
 {
-    private readonly AppDbContext _db;
+    private readonly IInventoryFacade _inventory;
 
-    public ProductosController(AppDbContext db) => _db = db;
+    public ProductosController(IInventoryFacade inventory) => _inventory = inventory;
 
     /// <summary>Lista el inventario actual (id, nombre, cantidad).</summary>
     [HttpGet("inventario")]
     [ProducesResponseType(typeof(IEnumerable<ProductoInventarioDto>), StatusCodes.Status200OK)]
     public async Task<ActionResult<IEnumerable<ProductoInventarioDto>>> Inventario(CancellationToken ct)
     {
-        var list = await _db.Productos
-            .AsNoTracking()
-            .OrderBy(p => p.Id)
-            .Select(p => new ProductoInventarioDto
-            {
-                Id = p.Id,
-                Nombre = p.Nombre,
-                Cantidad = p.Cantidad
-            })
-            .ToListAsync(ct);
-
+        var list = await _inventory.ListInventarioAsync(ct).ConfigureAwait(false);
         return Ok(list);
     }
 
@@ -49,43 +38,12 @@ public class ProductosController : ControllerBase
             return ValidationProblem(ModelState);
         }
 
-        var tipo = request.Tipo.Trim().ToLowerInvariant();
-        if (tipo is not ("entrada" or "salida"))
+        var result = await _inventory.RegistrarMovimientoAsync(request, ct).ConfigureAwait(false);
+        if (!result.Exito)
         {
-            return BadRequest(new { message = "Tipo debe ser 'entrada' o 'salida'." });
+            return StatusCode(result.CodigoHttp, result.CuerpoError);
         }
 
-        var producto = await _db.Productos.FirstOrDefaultAsync(p => p.Id == request.ProductoId, ct);
-        if (producto is null)
-        {
-            return NotFound(new { message = $"No existe producto con id {request.ProductoId}." });
-        }
-
-        if (tipo == "entrada")
-        {
-            producto.Cantidad += request.Cantidad;
-        }
-        else
-        {
-            if (producto.Cantidad < request.Cantidad)
-            {
-                return Conflict(new
-                {
-                    message = "Stock insuficiente para la salida solicitada.",
-                    disponible = producto.Cantidad
-                });
-            }
-
-            producto.Cantidad -= request.Cantidad;
-        }
-
-        await _db.SaveChangesAsync(ct);
-
-        return Ok(new ProductoInventarioDto
-        {
-            Id = producto.Id,
-            Nombre = producto.Nombre,
-            Cantidad = producto.Cantidad
-        });
+        return Ok(result.Valor);
     }
 }

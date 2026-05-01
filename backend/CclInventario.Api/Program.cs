@@ -1,10 +1,14 @@
-using System.Text;
 using CclInventario.Api.Data;
 using CclInventario.Api.Options;
+using CclInventario.Api.Patterns.Factory;
+using CclInventario.Api.Patterns.Facade;
+using CclInventario.Api.Patterns.Observer;
+using CclInventario.Api.Patterns.Singleton;
+using CclInventario.Api.Patterns.Strategies;
 using CclInventario.Api.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
+using Microsoft.Extensions.Options;
 using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -12,26 +16,29 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.Configure<JwtOptions>(builder.Configuration.GetSection(JwtOptions.SectionName));
 builder.Services.Configure<DemoAuthOptions>(builder.Configuration.GetSection(DemoAuthOptions.SectionName));
 
-builder.Services.AddSingleton<DemoUserStore>();
-builder.Services.AddSingleton<JwtTokenBuilder>();
+// --- GoF + DI: Singleton (vida única del proceso) ---
+builder.Services.AddSingleton<OperationSequenceGenerator>();
+builder.Services.AddSingleton<IJwtBearerConfigurationFactory, JwtBearerConfigurationFactory>();
+builder.Services.AddSingleton<IJwtTokenFactory, JwtTokenFactory>();
+builder.Services.AddSingleton<IDemoUserStore, DemoUserStore>();
 
-var jwt = builder.Configuration.GetSection(JwtOptions.SectionName).Get<JwtOptions>()
-          ?? throw new InvalidOperationException("Falta sección Jwt en configuración.");
+// --- GoF Strategy + Factory ---
+builder.Services.AddSingleton<IMovimientoStrategy, EntradaMovimientoStrategy>();
+builder.Services.AddSingleton<IMovimientoStrategy, SalidaMovimientoStrategy>();
+builder.Services.AddSingleton<IMovimientoStrategyFactory, MovimientoStrategyFactory>();
+
+// --- GoF Observer ---
+builder.Services.AddSingleton<IInventoryObserver, InventoryLoggingObserver>();
+builder.Services.AddSingleton<IInventoryChangeNotifier, InventoryChangeNotifier>();
+
+// --- GoF Facade (orquesta DbContext scoped) ---
+builder.Services.AddScoped<IInventoryFacade, InventoryFacade>();
+
+// --- JWT: opciones nombradas vía Factory ---
+builder.Services.AddSingleton<IConfigureNamedOptions<JwtBearerOptions>, JwtBearerOptionsConfigurer>();
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-    .AddJwtBearer(options =>
-    {
-        options.TokenValidationParameters = new TokenValidationParameters
-        {
-            ValidateIssuer = true,
-            ValidateAudience = true,
-            ValidateLifetime = true,
-            ValidateIssuerSigningKey = true,
-            ValidIssuer = jwt.Issuer,
-            ValidAudience = jwt.Audience,
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwt.Key))
-        };
-    });
+    .AddJwtBearer();
 
 builder.Services.AddAuthorization();
 
@@ -46,7 +53,7 @@ builder.Services.AddSwaggerGen(c =>
     {
         Title = "CCL Inventario API",
         Version = "v1",
-        Description = "Prueba técnica — inventario con JWT y PostgreSQL."
+        Description = "Prueba técnica — inventario con JWT, PostgreSQL y patrones GoF explícitos."
     });
     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
@@ -84,7 +91,6 @@ var app = builder.Build();
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-    // Esquema sin cadena de migraciones compleja: crea tablas si no existen (prueba técnica).
     await db.Database.EnsureCreatedAsync();
 }
 
