@@ -1,30 +1,86 @@
-<section class="card">
-  <h1>Inventario CCL</h1>
-  <p class="muted">Ingrese usuario y clave de demostración.</p>
+<div class="login-page">
+  <div class="login-page__bg" aria-hidden="true"></div>
+  <div class="login-page__swoosh login-page__swoosh--1" aria-hidden="true"></div>
+  <div class="login-page__swoosh login-page__swoosh--2" aria-hidden="true"></div>
 
-  <form [formGroup]="form" (ngSubmit)="submit()">
-    <label>
-      Usuario
-      <input type="text" formControlName="usuario" autocomplete="username" />
-    </label>
-    @if (form.controls.usuario.invalid && form.controls.usuario.touched) {
-      <span class="err">El usuario es obligatorio.</span>
-    }
+  <section class="login-card animate-in" aria-labelledby="login-heading">
+    <header class="login-card__brand">
+      <img
+        class="login-card__logo"
+        src="/branding/ccl-logo.png"
+        width="240"
+        height="78"
+        alt="Corporación Colombiana de Logística"
+        decoding="async"
+      />
+      <p class="login-card__tagline" title="Eslogan institucional">Logística en todo</p>
+      <h1 id="login-heading" class="login-card__title">Inventario digital</h1>
+      <p class="login-card__muted">Ingrese usuario y clave de demostración.</p>
+    </header>
 
-    <label>
-      Clave
-      <input type="password" formControlName="clave" autocomplete="current-password" />
-    </label>
-    @if (form.controls.clave.invalid && form.controls.clave.touched) {
-      <span class="err">La clave es obligatoria.</span>
-    }
+    <form class="login-form" [formGroup]="form" (ngSubmit)="submit()">
+      <label class="login-field">
+        <span class="login-field__label">Usuario</span>
+        <input
+          type="text"
+          formControlName="usuario"
+          autocomplete="username"
+          title="Usuario de acceso"
+          placeholder="Ej. demo"
+        />
+      </label>
+      @if (form.controls.usuario.invalid && form.controls.usuario.touched) {
+        <span class="login-msg login-msg--err">El usuario es obligatorio.</span>
+      }
 
-    @if (errorMessage) {
-      <p class="err">{{ errorMessage }}</p>
-    }
+      <label class="login-field login-field--password">
+        <span class="login-field__label">Clave</span>
+        <div class="login-field__password-inner">
+          <input
+            [type]="showPassword() ? 'text' : 'password'"
+            formControlName="clave"
+            autocomplete="current-password"
+            title="Contraseña"
+            placeholder="••••••••"
+          />
+          <button
+            type="button"
+            class="login-password-toggle"
+            (click)="togglePasswordVisibility()"
+            [attr.aria-pressed]="showPassword()"
+            [attr.aria-label]="showPassword() ? 'Ocultar contraseña' : 'Mostrar contraseña'"
+            title="Mostrar u ocultar contraseña"
+          >
+            @if (showPassword()) {
+              <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <path d="M3 3l18 18" stroke-linecap="round" />
+                <path d="M10.6 10.6a2 2 0 004.25 4.66M9.88 9.88A4.76 4.76 0 0112 5c3.18 0 6.25 2.05 8.5 6a16.4 16.4 0 01-2.25 3.12M6.36 6.36C4.22 7.88 2.55 9.87 1.5 12c2.25 3.95 5.32 6 8.5 6 1.05 0 2.07-.18 3.04-.52" stroke-linecap="round" stroke-linejoin="round" />
+              </svg>
+            } @else {
+              <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z" stroke-linecap="round" stroke-linejoin="round" />
+                <circle cx="12" cy="12" r="3" />
+              </svg>
+            }
+          </button>
+        </div>
+      </label>
+      @if (form.controls.clave.invalid && form.controls.clave.touched) {
+        <span class="login-msg login-msg--err">La clave es obligatoria.</span>
+      }
 
-    <button type="submit" [disabled]="loading">
-      {{ loading ? 'Ingresando…' : 'Ingresar' }}
-    </button>
-  </form>
-</section>
+      @if (errorMessage) {
+        <p class="login-msg login-msg--err" role="alert">{{ errorMessage }}</p>
+      }
+
+      <button
+        type="submit"
+        class="login-submit"
+        [disabled]="loading"
+        title="Iniciar sesión en el sistema"
+      >
+        {{ loading ? 'Ingresando…' : 'Ingresar' }}
+      </button>
+    </form>
+  </section>
+</div>

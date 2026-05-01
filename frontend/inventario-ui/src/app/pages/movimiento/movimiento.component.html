@@ -1,50 +1,69 @@
-<section class="panel">
-  <h1>Registrar movimiento</h1>
-  <p class="muted">Entrada suma stock; salida resta si hay disponibilidad.</p>
+<section class="panel animate-in">
+  <header class="panel__head">
+    <div>
+      <h1 class="panel__title">Registrar movimiento</h1>
+      <p class="panel__sub">Entrada suma al stock; salida resta si hay disponibilidad suficiente.</p>
+    </div>
+  </header>
 
   @if (loadingList) {
-    <p class="muted">Cargando productos…</p>
+    <div class="skeleton" role="status">
+      <div class="skeleton__row"></div>
+      <div class="skeleton__row"></div>
+    </div>
   } @else {
-    <form [formGroup]="form" (ngSubmit)="submit()">
-      <label>
-        Producto
-        <select formControlName="productoId">
-          <option [ngValue]="null">Seleccione…</option>
-          @for (p of productos; track p.id) {
-            <option [ngValue]="p.id">{{ p.id }} — {{ p.nombre }} ({{ p.cantidad }})</option>
-          }
-        </select>
-      </label>
-      @if (form.controls.productoId.invalid && form.controls.productoId.touched) {
-        <span class="err">Debe elegir un producto.</span>
-      }
+    <form class="form" [formGroup]="form" (ngSubmit)="submit()">
+      <div class="form__grid">
+        <label class="field">
+          <span class="field__label">
+            Producto
+            <span class="hint" title="Lista sincronizada con el inventario actual">ⓘ</span>
+          </span>
+          <select formControlName="productoId" title="Elija el producto a afectar">
+            <option [ngValue]="null">Seleccione un producto…</option>
+            @for (p of productos; track p.id) {
+              <option [ngValue]="p.id">{{ p.nombre }} — stock {{ p.cantidad }}</option>
+            }
+          </select>
+        </label>
+        @if (form.controls.productoId.invalid && form.controls.productoId.touched) {
+          <span class="msg msg--err field__hint">Debe elegir un producto.</span>
+        }
 
-      <label>
-        Tipo
-        <select formControlName="tipo">
-          <option value="entrada">Entrada</option>
-          <option value="salida">Salida</option>
-        </select>
-      </label>
+        <label class="field">
+          <span class="field__label">Tipo de movimiento</span>
+          <select formControlName="tipo" title="Entrada aumenta cantidad; salida la disminuye">
+            <option value="entrada">Entrada (ingreso)</option>
+            <option value="salida">Salida (egreso)</option>
+          </select>
+        </label>
 
-      <label>
-        Cantidad
-        <input type="number" min="1" formControlName="cantidad" />
-      </label>
+        <label class="field field--narrow">
+          <span class="field__label">Cantidad</span>
+          <input type="number" min="1" formControlName="cantidad" title="Unidades a mover (mínimo 1)" />
+        </label>
+      </div>
       @if (form.controls.cantidad.invalid && form.controls.cantidad.touched) {
-        <span class="err">La cantidad debe ser al menos 1.</span>
+        <span class="msg msg--err">La cantidad debe ser al menos 1.</span>
       }
 
       @if (success) {
-        <p class="ok">{{ success }}</p>
+        <p class="msg msg--ok" role="status">{{ success }}</p>
       }
       @if (error) {
-        <p class="err">{{ error }}</p>
+        <p class="msg msg--err" role="alert">{{ error }}</p>
       }
 
-      <button type="submit" [disabled]="submitting">
-        {{ submitting ? 'Guardando…' : 'Registrar movimiento' }}
-      </button>
+      <div class="form__actions">
+        <button
+          type="submit"
+          class="btn btn--primary"
+          [disabled]="submitting"
+          title="Guardar movimiento en el inventario"
+        >
+          {{ submitting ? 'Guardando…' : 'Registrar movimiento' }}
+        </button>
+      </div>
     </form>
   }
 </section>

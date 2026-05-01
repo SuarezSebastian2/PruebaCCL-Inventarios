@@ -1,12 +1,13 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { RouterLink } from '@angular/router';
 import { ProductoInventario } from '../../core/inventario-api.service';
 import { InventoryUiFacade } from '../../core/patterns/facade/inventory-ui.facade';
 
 @Component({
   selector: 'app-inventario',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, RouterLink],
   templateUrl: './inventario.component.html',
   styleUrl: './inventario.component.css'
 })

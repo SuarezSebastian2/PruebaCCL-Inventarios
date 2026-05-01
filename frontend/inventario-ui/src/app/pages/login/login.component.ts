@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '../../core/auth.service';
@@ -22,6 +22,11 @@ export class LoginComponent {
 
   errorMessage = '';
   loading = false;
+  readonly showPassword = signal(false);
+
+  togglePasswordVisibility(): void {
+    this.showPassword.update((v) => !v);
+  }
 
   submit(): void {
     this.errorMessage = '';
