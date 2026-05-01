@@ -1,16 +1,21 @@
 -- =============================================================================
 -- Prueba CCL — base `ccl_inventario`, tabla `productos` y datos iniciales (manual).
 --
+-- PostgreSQL ≠ SQL Server: NO use `ccl_inventario.productos` (eso es
+-- esquema.tabla, no base.tabla). Con sesión en la base `ccl_inventario` use:
+--   SELECT * FROM productos;   o   SELECT * FROM public.productos;
+--
 -- Orden (pgAdmin / DBeaver / etc.):
---   1) Conectado a la base del sistema "postgres": ejecutar solo el BLOQUE 1
---      (hasta el separador). Si la base ya existe, omita el BLOQUE 1.
+--   1) Conectado a la base del sistema "postgres": ejecutar solo el BLOQUE 1.
+--      Si la base ya existe, omita el BLOQUE 1.
 --   2) Conectado a "ccl_inventario": ejecutar del BLOQUE 2 hasta el final.
 --
--- Si ejecuta el archivo entero estando en "postgres", el BLOQUE 2 abortará
--- a propósito para no crear la tabla en la base incorrecta.
+-- Si pega CREATE TABLE + INSERT en una sesión conectada a "postgres", la
+-- tabla queda en postgres.public (error típico). Limpieza (solo si aplica):
+--   conectado a "postgres":  DROP TABLE IF EXISTS public.productos;
 --
 -- Alternativa: arrancar la API una vez (EnsureCreated) y en "ccl_inventario"
--- ejecutar solo el BLOQUE 3 (omitir 1 y 2 si la tabla ya existe).
+-- ejecutar solo el INSERT del BLOQUE 3 (omitir 1 y 2 si la tabla ya existe).
 -- =============================================================================
 
 -- ========== BLOQUE 1 — solo conectado a la base "postgres" ==========
@@ -24,7 +29,7 @@ DO $guard$
 BEGIN
   IF current_database() IS DISTINCT FROM 'ccl_inventario' THEN
     RAISE EXCEPTION
-      'Ejecute el BLOQUE 2 y 3 estando conectado a la base ''ccl_inventario'' (base actual: %). Cree la BD con el BLOQUE 1 en ''postgres'' y vuelva a conectar.',
+      'Ejecute el BLOQUE 2 y 3 conectado a la base ''ccl_inventario'' (sesión actual: %). En pgAdmin: clic derecho en ccl_inventario → Query Tool.',
       current_database();
   END IF;
 END
