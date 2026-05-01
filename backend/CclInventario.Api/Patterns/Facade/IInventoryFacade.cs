@@ -10,4 +10,12 @@ public interface IInventoryFacade
     Task<IReadOnlyList<ProductoInventarioDto>> ListInventarioAsync(CancellationToken ct);
 
     Task<InventoryFacadeMovimientoResult> RegistrarMovimientoAsync(MovimientoRequest request, CancellationToken ct);
+
+    Task<ProductoInventarioDto?> GetProductoByIdAsync(int id, CancellationToken ct);
+
+    Task<InventoryFacadeCrudResult> CrearProductoAsync(CreateProductoRequest request, CancellationToken ct);
+
+    Task<InventoryFacadeCrudResult> ActualizarProductoAsync(int id, UpdateProductoRequest request, CancellationToken ct);
+
+    Task<InventoryFacadeCrudResult> EliminarProductoAsync(int id, CancellationToken ct);
 }
