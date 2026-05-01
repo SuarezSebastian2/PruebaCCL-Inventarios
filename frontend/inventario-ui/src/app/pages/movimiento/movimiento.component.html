@@ -1,0 +1,50 @@
+<section class="panel">
+  <h1>Registrar movimiento</h1>
+  <p class="muted">Entrada suma stock; salida resta si hay disponibilidad.</p>
+
+  @if (loadingList) {
+    <p class="muted">Cargando productos…</p>
+  } @else {
+    <form [formGroup]="form" (ngSubmit)="submit()">
+      <label>
+        Producto
+        <select formControlName="productoId">
+          <option [ngValue]="null">Seleccione…</option>
+          @for (p of productos; track p.id) {
+            <option [ngValue]="p.id">{{ p.id }} — {{ p.nombre }} ({{ p.cantidad }})</option>
+          }
+        </select>
+      </label>
+      @if (form.controls.productoId.invalid && form.controls.productoId.touched) {
+        <span class="err">Debe elegir un producto.</span>
+      }
+
+      <label>
+        Tipo
+        <select formControlName="tipo">
+          <option value="entrada">Entrada</option>
+          <option value="salida">Salida</option>
+        </select>
+      </label>
+
+      <label>
+        Cantidad
+        <input type="number" min="1" formControlName="cantidad" />
+      </label>
+      @if (form.controls.cantidad.invalid && form.controls.cantidad.touched) {
+        <span class="err">La cantidad debe ser al menos 1.</span>
+      }
+
+      @if (success) {
+        <p class="ok">{{ success }}</p>
+      }
+      @if (error) {
+        <p class="err">{{ error }}</p>
+      }
+
+      <button type="submit" [disabled]="submitting">
+        {{ submitting ? 'Guardando…' : 'Registrar movimiento' }}
+      </button>
+    </form>
+  }
+</section>
