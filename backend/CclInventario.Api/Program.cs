@@ -34,11 +34,14 @@ builder.Services.AddSingleton<IInventoryChangeNotifier, InventoryChangeNotifier>
 // --- GoF Facade (orquesta DbContext scoped) ---
 builder.Services.AddScoped<IInventoryFacade, InventoryFacade>();
 
-// --- JWT: registro del esquema y luego factory de validación (orden importa para opciones nombradas) ---
+// --- JWT: esquema Bearer + parámetros de validación enlazados al nombre del esquema (evita "signature key was not found") ---
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer();
 
-builder.Services.AddSingleton<IConfigureNamedOptions<JwtBearerOptions>, JwtBearerOptionsConfigurer>();
+builder.Services
+    .AddOptions<JwtBearerOptions>(JwtBearerDefaults.AuthenticationScheme)
+    .Configure<IJwtBearerConfigurationFactory>((options, factory) =>
+        options.TokenValidationParameters = factory.CreateValidationParameters());
 
 builder.Services.AddAuthorization();
 
