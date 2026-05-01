@@ -1,6 +1,8 @@
 import { Injectable, inject } from '@angular/core';
 import { Observable, tap } from 'rxjs';
 import {
+  ActualizarProductoPayload,
+  CrearProductoPayload,
   InventarioApiService,
   MovimientoRequest,
   ProductoInventario
@@ -27,6 +29,22 @@ export class InventoryUiFacade {
 
   listInventario(): Observable<ProductoInventario[]> {
     return this.api.inventario();
+  }
+
+  obtenerProducto(id: number): Observable<ProductoInventario> {
+    return this.api.obtenerProducto(id);
+  }
+
+  crearProducto(body: CrearProductoPayload): Observable<ProductoInventario> {
+    return this.api.crearProducto(body);
+  }
+
+  actualizarProducto(id: number, body: ActualizarProductoPayload): Observable<ProductoInventario> {
+    return this.api.actualizarProducto(id, body);
+  }
+
+  eliminarProducto(id: number): Observable<void> {
+    return this.api.eliminarProducto(id);
   }
 
   registrarMovimiento(body: MovimientoRequest): Observable<ProductoInventario> {

@@ -1,3 +1,5 @@
+@import 'sweetalert2/dist/sweetalert2.min.css';
+
 /* CCL inventario — variables de marca y base global */
 :root {
   --ccl-blue: #0f3d7a;
@@ -79,4 +81,21 @@ body {
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
+}
+
+body.swal2-shown {
+  padding-right: 0 !important;
+}
+
+.swal2-popup {
+  font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+  border-radius: var(--radius-lg);
+}
+
+.swal2-styled.swal2-confirm {
+  font-weight: 700;
+}
+
+.swal2-styled.swal2-cancel {
+  font-weight: 600;
 }

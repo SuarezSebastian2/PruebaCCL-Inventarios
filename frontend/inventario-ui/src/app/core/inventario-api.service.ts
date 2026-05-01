@@ -15,6 +15,16 @@ export interface MovimientoRequest {
   cantidad: number;
 }
 
+export interface CrearProductoPayload {
+  nombre: string;
+  cantidad: number;
+}
+
+export interface ActualizarProductoPayload {
+  nombre: string;
+  cantidad: number;
+}
+
 @Injectable({ providedIn: 'root' })
 export class InventarioApiService {
   private readonly http = inject(HttpClient);
@@ -26,5 +36,21 @@ export class InventarioApiService {
 
   movimiento(body: MovimientoRequest): Observable<ProductoInventario> {
     return this.http.post<ProductoInventario>(this.endpoints.movimiento(), body);
+  }
+
+  obtenerProducto(id: number): Observable<ProductoInventario> {
+    return this.http.get<ProductoInventario>(this.endpoints.productoPorId(id));
+  }
+
+  crearProducto(body: CrearProductoPayload): Observable<ProductoInventario> {
+    return this.http.post<ProductoInventario>(this.endpoints.productosColeccion(), body);
+  }
+
+  actualizarProducto(id: number, body: ActualizarProductoPayload): Observable<ProductoInventario> {
+    return this.http.put<ProductoInventario>(this.endpoints.productoPorId(id), body);
+  }
+
+  eliminarProducto(id: number): Observable<void> {
+    return this.http.delete<void>(this.endpoints.productoPorId(id));
   }
 }

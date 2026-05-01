@@ -42,4 +42,41 @@ describe('InventarioApiService', () => {
     expect(req.request.body).toEqual(body);
     req.flush({ id: 2, nombre: 'Y', cantidad: 4 });
   });
+
+  it('GET producto by id', (done) => {
+    service.obtenerProducto(3).subscribe((p) => {
+      expect(p.nombre).toBe('Z');
+      done();
+    });
+    const req = httpMock.expectOne((r) => r.url.endsWith('/productos/3'));
+    req.flush({ id: 3, nombre: 'Z', cantidad: 0 });
+  });
+
+  it('POST crear producto', (done) => {
+    const body = { nombre: 'N', cantidad: 1 };
+    service.crearProducto(body).subscribe((p) => {
+      expect(p.id).toBe(9);
+      done();
+    });
+    const req = httpMock.expectOne((r) => r.method === 'POST' && r.url.endsWith('/productos'));
+    expect(req.request.body).toEqual(body);
+    req.flush({ id: 9, nombre: 'N', cantidad: 1 });
+  });
+
+  it('PUT actualizar producto', (done) => {
+    service.actualizarProducto(2, { nombre: 'X', cantidad: 4 }).subscribe((p) => {
+      expect(p.cantidad).toBe(4);
+      done();
+    });
+    const req = httpMock.expectOne((r) => r.method === 'PUT' && r.url.endsWith('/productos/2'));
+    req.flush({ id: 2, nombre: 'X', cantidad: 4 });
+  });
+
+  it('DELETE eliminar producto', (done) => {
+    service.eliminarProducto(1).subscribe(() => {
+      done();
+    });
+    const req = httpMock.expectOne((r) => r.method === 'DELETE' && r.url.endsWith('/productos/1'));
+    req.flush(null);
+  });
 });

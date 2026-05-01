@@ -29,6 +29,13 @@
   color: var(--ccl-text-muted);
 }
 
+.panel__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.65rem;
+}
+
 .btn {
   display: inline-flex;
   align-items: center;
@@ -51,6 +58,26 @@
 .btn--ghost:hover:not(:disabled) {
   background: rgba(43, 191, 106, 0.12);
   border-color: rgba(43, 191, 106, 0.35);
+}
+
+.btn--primary {
+  background: linear-gradient(135deg, var(--ccl-green) 0%, var(--ccl-green-hover) 100%);
+  color: #fff;
+  box-shadow: 0 4px 14px rgba(43, 191, 106, 0.3);
+  text-decoration: none;
+}
+
+.btn--primary:hover:not(:disabled) {
+  filter: brightness(1.05);
+  transform: translateY(-1px);
+}
+
+.btn--primary:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.btn--add {
+  font-weight: 700;
 }
 
 .btn:disabled {
@@ -170,7 +197,7 @@
 }
 
 .actions-col {
-  width: 4.5rem;
+  width: 5rem;
   text-align: center;
 }
 
@@ -229,7 +256,7 @@
   position: absolute;
   right: 0;
   top: calc(100% + 6px);
-  min-width: 220px;
+  min-width: 248px;
   background: var(--ccl-surface);
   border-radius: var(--radius-md);
   box-shadow: var(--shadow-hover);
@@ -260,6 +287,28 @@
 .row-menu__item-icon {
   display: flex;
   color: var(--ccl-green);
+}
+
+button.row-menu__item {
+  width: 100%;
+  border: none;
+  background: none;
+  font: inherit;
+  cursor: pointer;
+  text-align: left;
+}
+
+.row-menu__item--danger {
+  color: var(--ccl-danger);
+}
+
+.row-menu__item--danger:hover {
+  background: rgba(220, 38, 38, 0.1);
+  color: var(--ccl-danger);
+}
+
+.row-menu__item--danger .row-menu__item-icon {
+  color: var(--ccl-danger);
 }
 
 .sr-only {

@@ -24,4 +24,14 @@ export class ApiEndpointFactory {
   movimiento(): string {
     return `${this.base}/productos/movimiento`;
   }
+
+  /** Recurso REST de producto (GET/PUT/DELETE por id). */
+  productoPorId(id: number): string {
+    return `${this.base}/productos/${id}`;
+  }
+
+  /** Alta de producto (POST /productos). */
+  productosColeccion(): string {
+    return `${this.base}/productos`;
+  }
 }
