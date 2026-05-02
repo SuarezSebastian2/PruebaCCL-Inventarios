@@ -1,7 +1,12 @@
 <section class="panel animate-in">
   <header class="panel__head">
     <div>
-      <h1 class="panel__title">Registrar movimiento</h1>
+      <h1
+        class="panel__title"
+        data-tooltip="Cada movimiento actualiza el stock del producto elegido. Entrada suma; salida resta y valida que no quede negativo."
+      >
+        Registrar movimiento
+      </h1>
       <p class="panel__sub">Entrada suma al stock; salida resta si hay disponibilidad suficiente.</p>
     </div>
   </header>
@@ -14,33 +19,39 @@
   } @else {
     <form class="form" [formGroup]="form" (ngSubmit)="submit()">
       <div class="form__grid">
-        <label class="field">
+        <label
+          class="field"
+          data-tooltip="Elija el producto cuyo stock se actualizará. La lista viene del inventario; si abrió desde una fila, puede venir preseleccionado. Cada opción muestra nombre y cantidad actual."
+        >
           <span class="field__label">
             Producto
-            <span class="hint" title="Lista sincronizada con el inventario actual">ⓘ</span>
+            <span class="hint" tabindex="0" aria-hidden="true">ⓘ</span>
           </span>
-          <select formControlName="productoId" title="Elija el producto a afectar">
+          <select formControlName="productoId">
             <option [ngValue]="null">Seleccione un producto…</option>
             @for (p of productos; track p.id) {
               <option [ngValue]="p.id">{{ p.nombre }} — stock {{ p.cantidad }}</option>
             }
           </select>
         </label>
-        @if (form.controls.productoId.invalid && form.controls.productoId.touched) {
-          <span class="msg msg--err field__hint">Debe elegir un producto.</span>
-        }
 
-        <label class="field">
+        <label
+          class="field"
+          data-tooltip="Entrada: suma unidades al stock. Salida: resta unidades; el sistema evita saldos negativos."
+        >
           <span class="field__label">Tipo de movimiento</span>
-          <select formControlName="tipo" title="Entrada aumenta cantidad; salida la disminuye">
+          <select formControlName="tipo">
             <option value="entrada">Entrada (ingreso)</option>
             <option value="salida">Salida (egreso)</option>
           </select>
         </label>
 
-        <label class="field field--narrow">
+        <label
+          class="field field--narrow"
+          data-tooltip="Número entero de unidades del movimiento (mínimo 1). No use decimales."
+        >
           <span class="field__label">Cantidad</span>
-          <input type="number" min="1" formControlName="cantidad" title="Unidades a mover (mínimo 1)" />
+          <input type="number" min="1" formControlName="cantidad" />
         </label>
       </div>
       @if (form.controls.cantidad.invalid && form.controls.cantidad.touched) {
@@ -53,16 +64,18 @@
       @if (error) {
         <p class="msg msg--err" role="alert">{{ error }}</p>
       }
+      @if (productos.length === 0) {
+        <p class="msg msg--muted" role="status">
+          No hay productos en inventario. Use «Agregar producto» en Inventario para poder registrar movimientos.
+        </p>
+      }
 
       <div class="form__actions">
-        <button
-          type="submit"
-          class="btn btn--primary"
-          [disabled]="submitting"
-          title="Guardar movimiento en el inventario"
-        >
-          {{ submitting ? 'Guardando…' : 'Registrar movimiento' }}
-        </button>
+        <span class="movimiento-submit-host" [attr.data-tooltip]="movimientoSubmitTooltip">
+          <button type="submit" class="btn btn--primary" [disabled]="movimientoSubmitDisabled">
+            {{ submitting ? 'Guardando…' : 'Registrar movimiento' }}
+          </button>
+        </span>
       </div>
     </form>
   }

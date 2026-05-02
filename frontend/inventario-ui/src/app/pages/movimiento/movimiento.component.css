@@ -141,6 +141,11 @@ input:focus {
   cursor: not-allowed;
 }
 
+.movimiento-submit-host {
+  display: inline-block;
+  vertical-align: middle;
+}
+
 .msg {
   margin: 0;
   padding: 0.65rem 0.85rem;

@@ -31,6 +31,27 @@ export class MovimientoComponent implements OnInit {
     cantidad: [1, [Validators.required, Validators.min(1)]]
   });
 
+  /** Botón deshabilitado hasta formulario válido (p. ej. producto elegido). */
+  get movimientoSubmitDisabled(): boolean {
+    return this.submitting || this.productos.length === 0 || this.form.invalid;
+  }
+
+  get movimientoSubmitTooltip(): string {
+    if (this.submitting) {
+      return 'Enviando al servidor…';
+    }
+    if (this.productos.length === 0) {
+      return 'No hay productos en inventario; agregue uno desde Inventario antes de mover stock.';
+    }
+    if (this.form.controls.productoId.invalid) {
+      return 'Seleccione un producto de la lista para habilitar el registro del movimiento.';
+    }
+    if (this.form.controls.cantidad.invalid) {
+      return 'Indique una cantidad válida (entero mayor o igual a 1).';
+    }
+    return 'Registra el movimiento con el producto, tipo y cantidad indicados.';
+  }
+
   ngOnInit(): void {
     this.loadingList = true;
     this.inventory.listInventario().subscribe({

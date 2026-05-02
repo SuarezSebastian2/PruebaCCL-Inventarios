@@ -13,34 +13,40 @@
         alt="Corporación Colombiana de Logística"
         decoding="async"
       />
-      <p class="login-card__tagline" title="Eslogan institucional">Logística en todo</p>
+      <p class="login-card__tagline" data-tooltip="Eslogan institucional de CCL (referencia de marca en esta pantalla).">
+        Logística en todo
+      </p>
       <h1 id="login-heading" class="login-card__title">Inventario digital</h1>
-      <p class="login-card__muted">Ingrese usuario y clave de demostración.</p>
+      <p
+        class="login-card__muted"
+        data-tooltip="Use las credenciales de demostración indicadas en la documentación del proyecto (entorno local)."
+      >
+        Ingrese usuario y clave de demostración.
+      </p>
     </header>
 
     <form class="login-form" [formGroup]="form" (ngSubmit)="submit()">
-      <label class="login-field">
+      <label
+        class="login-field"
+        data-tooltip="Nombre de usuario con el que se autenticará en la aplicación (credenciales de demo en documentación)."
+      >
         <span class="login-field__label">Usuario</span>
-        <input
-          type="text"
-          formControlName="usuario"
-          autocomplete="username"
-          title="Usuario de acceso"
-          placeholder="Ej. demo"
-        />
+        <input type="text" formControlName="usuario" autocomplete="username" placeholder="Ej. demo" />
       </label>
       @if (form.controls.usuario.invalid && form.controls.usuario.touched) {
         <span class="login-msg login-msg--err">El usuario es obligatorio.</span>
       }
 
-      <label class="login-field login-field--password">
+      <label
+        class="login-field login-field--password"
+        data-tooltip="Clave de acceso. Use el botón del ojo para ver u ocultar la clave mientras escribe y verificar tipeo."
+      >
         <span class="login-field__label">Clave</span>
         <div class="login-field__password-inner">
           <input
             [type]="showPassword() ? 'text' : 'password'"
             formControlName="clave"
             autocomplete="current-password"
-            title="Contraseña"
             placeholder="••••••••"
           />
           <button
@@ -49,7 +55,10 @@
             (click)="togglePasswordVisibility()"
             [attr.aria-pressed]="showPassword()"
             [attr.aria-label]="showPassword() ? 'Ocultar contraseña' : 'Mostrar contraseña'"
-            title="Mostrar u ocultar contraseña"
+            data-tooltip-side="north"
+            [attr.data-tooltip]="
+              showPassword() ? 'Ocultar la clave en pantalla (recomendado al terminar).' : 'Mostrar la clave en texto claro para verificar tipeo.'
+            "
           >
             @if (showPassword()) {
               <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
@@ -77,7 +86,9 @@
         type="submit"
         class="login-submit"
         [disabled]="loading"
-        title="Iniciar sesión en el sistema"
+        [attr.data-tooltip]="
+          loading ? 'Validando credenciales…' : 'Entrar al inventario digital con el usuario y clave indicados.'
+        "
       >
         {{ loading ? 'Ingresando…' : 'Ingresar' }}
       </button>
