@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { tap } from 'rxjs/operators';
 import { ApiEndpointFactory } from './patterns/factory/api-endpoint.factory';
 
+/** sessionStorage reduce persistencia del JWT frente a XSS respecto a localStorage (se pierde al cerrar la pestaña). */
 const TOKEN_KEY = 'ccl_inv_token';
 
 export interface LoginResponse {
@@ -23,14 +24,14 @@ export class AuthService {
   login(usuario: string, clave: string) {
     return this.http.post<LoginResponse>(this.endpoints.login(), { usuario, clave }).pipe(
       tap((res) => {
-        localStorage.setItem(TOKEN_KEY, res.token);
+        sessionStorage.setItem(TOKEN_KEY, res.token);
         this.token.set(res.token);
       })
     );
   }
 
   logout(): void {
-    localStorage.removeItem(TOKEN_KEY);
+    sessionStorage.removeItem(TOKEN_KEY);
     this.token.set(null);
     void this.router.navigateByUrl('/login');
   }
@@ -40,6 +41,6 @@ export class AuthService {
   }
 
   private readToken(): string | null {
-    return localStorage.getItem(TOKEN_KEY);
+    return sessionStorage.getItem(TOKEN_KEY);
   }
 }
