@@ -16,7 +16,7 @@ public class AppDbContext : DbContext
     {
         modelBuilder.Entity<Producto>(e =>
         {
-            e.ToTable("productos");
+            e.ToTable("productos", "public");
             e.HasKey(p => p.Id);
             // PostgreSQL sin comillas usa minúsculas; el SQL manual y PG crean id/nombre/cantidad.
             e.Property(p => p.Id).HasColumnName("id");
