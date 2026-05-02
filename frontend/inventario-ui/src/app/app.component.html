@@ -19,7 +19,13 @@
         />
       </div>
 
-      <p class="sidebar__tagline" title="Eslogan institucional">Logística en todo</p>
+      <p
+        class="sidebar__tagline"
+        data-tooltip="Eslogan institucional de CCL (solo referencia visual)"
+        data-tooltip-side="east"
+      >
+        Logística en todo
+      </p>
 
       <nav class="sidebar__nav" aria-label="Principal">
         <a
@@ -27,8 +33,8 @@
           routerLinkActive="sidebar__link--active"
           [routerLinkActiveOptions]="{ exact: true }"
           class="sidebar__link"
-          title="Ver stock actual de productos"
-          data-tooltip="Listado de inventario"
+          data-tooltip="Abre el listado de productos y cantidades en stock. Desde allí puede agregar, editar nombre o abrir movimientos."
+          data-tooltip-side="east"
           (click)="closeMobileNav()"
         >
           <span class="sidebar__icon" aria-hidden="true">
@@ -42,8 +48,8 @@
           routerLink="/movimiento"
           routerLinkActive="sidebar__link--active"
           class="sidebar__link"
-          title="Registrar entradas o salidas de stock"
-          data-tooltip="Movimientos de inventario"
+          data-tooltip="Registre entradas (suman stock) o salidas (restan si hay unidades). Elija producto y cantidad."
+          data-tooltip-side="east"
           (click)="closeMobileNav()"
         >
           <span class="sidebar__icon" aria-hidden="true">
@@ -59,7 +65,8 @@
         <button
           type="button"
           class="sidebar__logout"
-          title="Cerrar sesión en este dispositivo"
+          data-tooltip="Cierra la sesión en este navegador. Deberá volver a ingresar usuario y clave."
+          data-tooltip-side="east"
           (click)="auth.logout(); closeMobileNav()"
         >
           <span class="sidebar__icon" aria-hidden="true">
@@ -80,7 +87,8 @@
           (click)="toggleMobileNav()"
           [attr.aria-expanded]="mobileNavOpen()"
           aria-controls="app-sidebar"
-          title="Abrir o cerrar menú"
+          data-tooltip="Abre o cierra el menú lateral (Inventario, Movimiento, Salir). En escritorio el menú suele estar siempre visible."
+          data-tooltip-side="north"
         >
           <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
             <path d="M4 6h16M4 12h16M4 18h16" stroke-linecap="round" />

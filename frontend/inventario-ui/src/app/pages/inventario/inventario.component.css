@@ -142,7 +142,9 @@
 }
 
 .table-wrap {
-  overflow-x: auto;
+  /* overflow:auto en X fuerza clip en Y en muchos navegadores y recorta el menú (position:absolute).
+     El scroll horizontal, si hace falta, lo lleva la ventana; la tabla tiene min-width. */
+  overflow: visible;
   margin: 0 -0.25rem;
   border-radius: var(--radius-md);
 }
@@ -261,9 +263,16 @@
   border-radius: var(--radius-md);
   box-shadow: var(--shadow-hover);
   border: 1px solid rgba(15, 61, 122, 0.1);
-  z-index: 20;
+  z-index: 100;
   padding: 0.35rem;
   animation: sweep 0.22s var(--ease-out) both;
+}
+
+.row-menu__panel.row-menu__panel--anchored {
+  position: fixed;
+  right: auto;
+  top: auto;
+  animation: none;
 }
 
 .row-menu__item {
@@ -296,6 +305,52 @@ button.row-menu__item {
   font: inherit;
   cursor: pointer;
   text-align: left;
+}
+
+.row-menu__delete-row {
+  display: flex;
+  align-items: stretch;
+  gap: 0.35rem;
+  width: 100%;
+}
+
+.row-menu__delete-btn {
+  flex: 1;
+  min-width: 0;
+}
+
+.row-menu__stock-hint {
+  flex-shrink: 0;
+  align-self: center;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.65rem;
+  height: 1.65rem;
+  padding: 0 0.2rem;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  font-weight: 800;
+  color: var(--ccl-blue-soft);
+  background: rgba(15, 61, 122, 0.08);
+  cursor: help;
+  user-select: none;
+  line-height: 1;
+}
+
+button.row-menu__item:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+  color: var(--ccl-text-muted);
+}
+
+button.row-menu__item:disabled:hover {
+  background: transparent;
+  color: var(--ccl-text-muted);
+}
+
+button.row-menu__item--danger:disabled .row-menu__item-icon {
+  color: var(--ccl-text-muted);
 }
 
 .row-menu__item--danger {

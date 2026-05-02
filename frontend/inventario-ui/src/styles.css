@@ -42,14 +42,14 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
+/* Solo opacidad: si un ancestro lleva transform, position:fixed de hijos (menú flotante)
+   deja de referirse al viewport y el menú sale desplazado o en el borde de la ventana. */
 @keyframes fade-in {
   from {
     opacity: 0;
-    transform: translateY(6px);
   }
   to {
     opacity: 1;
-    transform: translateY(0);
   }
 }
 
@@ -68,9 +68,65 @@ body {
   animation: fade-in 0.45s var(--ease-out) both;
 }
 
-/* Tooltips nativos reforzados: usar title; para data-tooltip ver componentes */
-[data-tooltip] {
+/* Tooltips visibles (hover + foco). Más rápidos y legibles que title nativo. */
+[data-tooltip]:not([data-tooltip='']) {
   position: relative;
+}
+
+label[data-tooltip]:not([data-tooltip='']) {
+  cursor: help;
+}
+
+[data-tooltip]:not([data-tooltip=''])::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  z-index: 10060;
+  left: 50%;
+  top: calc(100% + 8px);
+  transform: translateX(-50%);
+  padding: 0.45rem 0.7rem;
+  max-width: min(20rem, 88vw);
+  width: max-content;
+  font-size: 0.78rem;
+  font-weight: 600;
+  line-height: 1.35;
+  color: #f8fafc;
+  background: linear-gradient(180deg, var(--ccl-blue-deep) 0%, #071a33 100%);
+  border-radius: 9px;
+  box-shadow: 0 6px 20px rgba(15, 61, 122, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  white-space: normal;
+  text-align: center;
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    opacity 0.12s ease,
+    visibility 0.12s ease;
+  transition-delay: 0s;
+}
+
+[data-tooltip]:not([data-tooltip='']):hover::after,
+[data-tooltip]:not([data-tooltip='']):focus-visible::after {
+  opacity: 1;
+  visibility: visible;
+  transition-delay: 0.06s;
+}
+
+/* A la derecha del elemento (menú lateral, ítems estrechos) */
+[data-tooltip-side='east']:not([data-tooltip=''])::after {
+  left: calc(100% + 10px);
+  top: 50%;
+  bottom: auto;
+  transform: translateY(-50%);
+  text-align: left;
+}
+
+/* Encima del elemento (botones de barra superior, evitar recorte inferior) */
+[data-tooltip-side='north']:not([data-tooltip=''])::after {
+  top: auto;
+  bottom: calc(100% + 8px);
+  transform: translateX(-50%);
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -1,14 +1,19 @@
 <section class="panel animate-in">
   <header class="panel__head">
     <div>
-      <h1 class="panel__title">Inventario actual</h1>
+      <h1
+        class="panel__title"
+        data-tooltip="Vista principal: todos los productos y su cantidad actual. Use el menú ⋮ de cada fila para movimiento, editar nombre o eliminar (solo con stock 0)."
+      >
+        Inventario actual
+      </h1>
       <p class="panel__sub">Productos en stock. Use opciones para ir a movimientos.</p>
     </div>
     <div class="panel__actions">
       <a
         routerLink="/productos/nuevo"
         class="btn btn--primary btn--add"
-        title="Registrar un nuevo producto en inventario"
+        data-tooltip="Alta de un producto nuevo: nombre y cantidad inicial. El stock posterior se ajusta solo con movimientos."
       >
         Agregar producto
       </a>
@@ -17,7 +22,11 @@
         class="btn btn--ghost"
         (click)="load()"
         [disabled]="loading"
-        title="Recargar datos desde el servidor"
+        [attr.data-tooltip]="
+          loading
+            ? 'Consultando el servidor…'
+            : 'Vuelve a cargar la tabla desde el API. Útil si otro usuario cambió datos.'
+        "
       >
         @if (loading) {
           <span class="btn__spin" aria-hidden="true"></span>
@@ -45,10 +54,16 @@
       <table class="data-table">
         <thead>
           <tr>
-            <th scope="col">Id</th>
-            <th scope="col">Producto</th>
-            <th scope="col" class="num">Cantidad</th>
-            <th scope="col" class="actions-col">
+            <th scope="col" data-tooltip="Identificador único del producto en base de datos.">Id</th>
+            <th scope="col" data-tooltip="Nombre descriptivo del artículo en inventario.">Producto</th>
+            <th scope="col" class="num" data-tooltip="Unidades disponibles. Cambian solo con entradas o salidas en Movimiento.">
+              Cantidad
+            </th>
+            <th
+              scope="col"
+              class="actions-col"
+              data-tooltip="Por fila: menú con movimiento de stock, editar nombre o eliminar (solo si la cantidad es 0)."
+            >
               <span class="sr-only">Opciones</span>
             </th>
           </tr>
@@ -57,17 +72,19 @@
           @for (p of productos; track p.id) {
             <tr class="data-table__row">
               <td>
-                <span class="id-pill" title="Identificador interno">#{{ p.id }}</span>
+                <span class="id-pill" data-tooltip="Identificador interno del producto (clave en base de datos).">#{{ p.id }}</span>
               </td>
               <td class="data-table__name">{{ p.nombre }}</td>
               <td class="num">
-                <span class="qty" title="Unidades en inventario">{{ p.cantidad }}</span>
+                <span class="qty" data-tooltip="Stock actual. No se edita aquí: use Movimiento para entradas o salidas.">{{
+                  p.cantidad
+                }}</span>
               </td>
               <td class="actions-col">
-                <details class="row-menu">
+                <details class="row-menu" (toggle)="onRowMenuToggle($event)">
                   <summary
                     class="row-menu__trigger"
-                    title="Abrir menú de opciones para este producto"
+                    data-tooltip="Abrir u ocultar acciones para esta fila: movimiento de stock, editar nombre o eliminar."
                     [attr.aria-label]="'Opciones para ' + p.nombre"
                   >
                     <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true">
@@ -82,7 +99,7 @@
                       [routerLink]="['/movimiento']"
                       [queryParams]="{ productoId: p.id }"
                       role="menuitem"
-                      title="Registrar entrada o salida de este producto"
+                      data-tooltip="Lleva a Movimiento con este producto preseleccionado para registrar entrada o salida."
                     >
                       <span class="row-menu__item-icon" aria-hidden="true">
                         <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
@@ -95,7 +112,7 @@
                       class="row-menu__item"
                       [routerLink]="['/productos', p.id, 'editar']"
                       role="menuitem"
-                      title="Cambiar nombre o cantidad en stock"
+                      data-tooltip="Cambiar solo el nombre del producto. La cantidad se ajusta en Movimiento."
                     >
                       <span class="row-menu__item-icon" aria-hidden="true">
                         <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
@@ -104,20 +121,38 @@
                       </span>
                       Editar producto
                     </a>
-                    <button
-                      type="button"
-                      class="row-menu__item row-menu__item--danger"
-                      role="menuitem"
-                      title="Eliminar este producto del inventario"
-                      (click)="confirmarEliminar(p, $event)"
-                    >
-                      <span class="row-menu__item-icon" aria-hidden="true">
-                        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
-                          <path d="M3 6h18M8 6V4h8v2M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6h14zM10 11v6M14 11v6" stroke-linecap="round" />
-                        </svg>
-                      </span>
-                      Eliminar
-                    </button>
+                    <div class="row-menu__delete-row">
+                      <button
+                        type="button"
+                        class="row-menu__item row-menu__item--danger row-menu__delete-btn"
+                        role="menuitem"
+                        [disabled]="p.cantidad !== 0"
+                        [attr.data-tooltip]="
+                          p.cantidad === 0
+                            ? 'Elimina el producto del inventario tras confirmación. Requiere cantidad en 0.'
+                            : null
+                        "
+                        (click)="confirmarEliminar(p, $event)"
+                      >
+                        <span class="row-menu__item-icon" aria-hidden="true">
+                          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M3 6h18M8 6V4h8v2M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6h14zM10 11v6M14 11v6" stroke-linecap="round" />
+                          </svg>
+                        </span>
+                        Eliminar
+                      </button>
+                      @if (p.cantidad !== 0) {
+                        <span
+                          class="row-menu__stock-hint"
+                          tabindex="0"
+                          role="note"
+                          data-tooltip="Eliminar está desactivado mientras haya stock. Use Movimiento con salidas hasta dejar la cantidad en 0."
+                          aria-label="Eliminar desactivado: reduzca el stock a cero con Movimiento."
+                          (click)="$event.stopPropagation()"
+                          >ⓘ</span
+                        >
+                      }
+                    </div>
                   </div>
                 </details>
               </td>
