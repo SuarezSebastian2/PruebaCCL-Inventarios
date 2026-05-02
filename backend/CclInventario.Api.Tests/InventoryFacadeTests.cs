@@ -167,12 +167,12 @@ public class InventoryFacadeTests
         var facade = CreateFacade(db, out _);
         var r = await facade.ActualizarProductoAsync(
             10,
-            new UpdateProductoRequest { Nombre = "Después", Cantidad = 50 },
+            new UpdateProductoRequest { Nombre = "Después" },
             CancellationToken.None);
 
         Assert.True(r.Exito);
         Assert.Equal("Después", db.Productos.Single().Nombre);
-        Assert.Equal(50, db.Productos.Single().Cantidad);
+        Assert.Equal(2, db.Productos.Single().Cantidad);
     }
 
     [Fact]
@@ -187,7 +187,7 @@ public class InventoryFacadeTests
         var facade = CreateFacade(db, out _);
         var r = await facade.ActualizarProductoAsync(
             2,
-            new UpdateProductoRequest { Nombre = "a", Cantidad = 2 },
+            new UpdateProductoRequest { Nombre = "a" },
             CancellationToken.None);
 
         Assert.False(r.Exito);
@@ -195,10 +195,10 @@ public class InventoryFacadeTests
     }
 
     [Fact]
-    public async Task EliminarProducto_removes_row()
+    public async Task EliminarProducto_removes_row_when_stock_zero()
     {
         await using var db = CreateContext();
-        db.Productos.Add(new Producto { Id = 3, Nombre = "X", Cantidad = 1 });
+        db.Productos.Add(new Producto { Id = 3, Nombre = "X", Cantidad = 0 });
         await db.SaveChangesAsync();
 
         var facade = CreateFacade(db, out _);
@@ -207,6 +207,22 @@ public class InventoryFacadeTests
         Assert.True(r.Exito);
         Assert.Equal(204, r.CodigoHttp);
         Assert.Empty(db.Productos);
+    }
+
+    [Fact]
+    public async Task EliminarProducto_nonzero_stock_returns_conflict()
+    {
+        await using var db = CreateContext();
+        db.Productos.Add(new Producto { Id = 7, Nombre = "ConStock", Cantidad = 5 });
+        await db.SaveChangesAsync();
+
+        var facade = CreateFacade(db, out _);
+        var r = await facade.EliminarProductoAsync(7, CancellationToken.None);
+
+        Assert.False(r.Exito);
+        Assert.Equal(409, r.CodigoHttp);
+        Assert.Single(db.Productos);
+        Assert.Equal(5, db.Productos.Single().Cantidad);
     }
 
     [Fact]

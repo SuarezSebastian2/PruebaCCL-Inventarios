@@ -155,7 +155,6 @@ public sealed class InventoryFacade : IInventoryFacade
         }
 
         entity.Nombre = nombreNorm;
-        entity.Cantidad = request.Cantidad;
         await _db.SaveChangesAsync(ct).ConfigureAwait(false);
 
         return InventoryFacadeCrudResult.Ok(ToDto(entity));
@@ -167,6 +166,14 @@ public sealed class InventoryFacade : IInventoryFacade
         if (entity is null)
         {
             return InventoryFacadeCrudResult.NotFound(new { message = $"No existe producto con id {id}." });
+        }
+
+        if (entity.Cantidad != 0)
+        {
+            return InventoryFacadeCrudResult.Conflict(new
+            {
+                message = "No se puede eliminar el producto mientras tenga stock. Deje la cantidad en 0 con salidas o movimientos y vuelva a intentar."
+            });
         }
 
         _db.Productos.Remove(entity);

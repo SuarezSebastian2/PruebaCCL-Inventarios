@@ -85,7 +85,7 @@ public class ProductosController : ControllerBase
         return CreatedAtAction(nameof(ObtenerPorId), new { id = result.Valor!.Id }, result.Valor);
     }
 
-    /// <summary>Actualiza nombre y cantidad del producto.</summary>
+    /// <summary>Actualiza solo el nombre del producto; la cantidad se ajusta con movimientos.</summary>
     [HttpPut("{id:int}")]
     [ProducesResponseType(typeof(ProductoInventarioDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -110,10 +110,11 @@ public class ProductosController : ControllerBase
         return Ok(result.Valor);
     }
 
-    /// <summary>Elimina el producto de la tabla.</summary>
+    /// <summary>Elimina el producto solo si la cantidad en stock es 0.</summary>
     [HttpDelete("{id:int}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<IActionResult> Eliminar(int id, CancellationToken ct)
     {
         var result = await _inventory.EliminarProductoAsync(id, ct).ConfigureAwait(false);
