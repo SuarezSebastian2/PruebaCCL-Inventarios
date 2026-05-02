@@ -22,7 +22,6 @@ export interface CrearProductoPayload {
 
 export interface ActualizarProductoPayload {
   nombre: string;
-  cantidad: number;
 }
 
 @Injectable({ providedIn: 'root' })

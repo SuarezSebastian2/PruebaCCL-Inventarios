@@ -97,6 +97,28 @@
   color: var(--ccl-blue-deep);
 }
 
+.field--readonly .field__readonly-value {
+  margin: 0;
+  padding: 0.65rem 0.75rem;
+  border-radius: var(--radius-md);
+  border: 1px dashed rgba(15, 61, 122, 0.22);
+  background: rgba(15, 61, 122, 0.04);
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--ccl-blue-deep);
+}
+
+.field--readonly .field__hint {
+  font-size: 0.82rem;
+  color: var(--ccl-text-muted);
+  line-height: 1.35;
+}
+
+.field--readonly .field__hint a {
+  color: var(--ccl-green-hover);
+  font-weight: 600;
+}
+
 input[type='text'],
 input[type='number'] {
   padding: 0.65rem 0.75rem;

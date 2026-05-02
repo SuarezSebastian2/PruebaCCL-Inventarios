@@ -21,6 +21,8 @@ export class ProductoFormComponent implements OnInit {
   private readonly router = inject(Router);
 
   productoId: number | null = null;
+  /** Stock actual solo informativo en edición (no editable aquí). */
+  stockActual: number | null = null;
   loadingProducto = false;
   submitting = false;
 
@@ -35,6 +37,11 @@ export class ProductoFormComponent implements OnInit {
   ngOnInit(): void {
     const raw = this.route.snapshot.paramMap.get('id');
     if (raw == null || raw === '') {
+      this.productoId = null;
+      this.stockActual = null;
+      this.form.controls.cantidad.setValidators([Validators.required, Validators.min(0)]);
+      this.form.reset({ nombre: '', cantidad: 0 });
+      this.form.controls.cantidad.updateValueAndValidity({ emitEvent: false });
       return;
     }
     const id = Number(raw);
@@ -47,7 +54,10 @@ export class ProductoFormComponent implements OnInit {
     this.inventory.obtenerProducto(id).subscribe({
       next: (p) => {
         this.loadingProducto = false;
+        this.stockActual = p.cantidad;
         this.form.patchValue({ nombre: p.nombre, cantidad: p.cantidad });
+        this.form.controls.cantidad.clearValidators();
+        this.form.controls.cantidad.updateValueAndValidity({ emitEvent: false });
       },
       error: () => {
         this.loadingProducto = false;
@@ -74,13 +84,13 @@ export class ProductoFormComponent implements OnInit {
     this.submitting = true;
 
     if (this.productoId != null) {
-      this.inventory.actualizarProducto(this.productoId, raw).subscribe({
+      this.inventory.actualizarProducto(this.productoId, { nombre: raw.nombre }).subscribe({
         next: (p) => {
           this.submitting = false;
           void Swal.fire({
             icon: 'success',
             title: 'Producto actualizado',
-            text: `Se guardaron los datos de "${p.nombre}".`,
+            text: `Se actualizó el nombre a «${p.nombre}». El stock sigue igual; ajústelo en Movimiento.`,
             confirmButtonColor: cclSwalTheme.confirmButtonColor
           }).then(() => this.router.navigateByUrl('/inventario'));
         },

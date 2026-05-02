@@ -63,13 +63,15 @@ describe('InventarioApiService', () => {
     req.flush({ id: 9, nombre: 'N', cantidad: 1 });
   });
 
-  it('PUT actualizar producto', (done) => {
-    service.actualizarProducto(2, { nombre: 'X', cantidad: 4 }).subscribe((p) => {
-      expect(p.cantidad).toBe(4);
+  it('PUT actualizar producto solo envía nombre', (done) => {
+    service.actualizarProducto(2, { nombre: 'X' }).subscribe((p) => {
+      expect(p.nombre).toBe('X');
+      expect(p.cantidad).toBe(99);
       done();
     });
     const req = httpMock.expectOne((r) => r.method === 'PUT' && r.url.endsWith('/productos/2'));
-    req.flush({ id: 2, nombre: 'X', cantidad: 4 });
+    expect(req.request.body).toEqual({ nombre: 'X' });
+    req.flush({ id: 2, nombre: 'X', cantidad: 99 });
   });
 
   it('DELETE eliminar producto', (done) => {
