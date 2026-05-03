@@ -1,9 +1,10 @@
-import { Injectable, signal } from '@angular/core';
+import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { tap } from 'rxjs/operators';
 import { ApiEndpointFactory } from './patterns/factory/api-endpoint.factory';
 
+/** sessionStorage reduce persistencia del JWT frente a XSS respecto a localStorage (se pierde al cerrar la pestaña). */
 const TOKEN_KEY = 'ccl_inv_token';
 
 export interface LoginResponse {
@@ -14,25 +15,23 @@ export interface LoginResponse {
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-  readonly token = signal<string | null>(this.readToken());
+  private readonly http = inject(HttpClient);
+  private readonly router = inject(Router);
+  private readonly endpoints = inject(ApiEndpointFactory);
 
-  constructor(
-    private readonly http: HttpClient,
-    private readonly router: Router,
-    private readonly endpoints: ApiEndpointFactory
-  ) {}
+  readonly token = signal<string | null>(this.readToken());
 
   login(usuario: string, clave: string) {
     return this.http.post<LoginResponse>(this.endpoints.login(), { usuario, clave }).pipe(
       tap((res) => {
-        localStorage.setItem(TOKEN_KEY, res.token);
+        sessionStorage.setItem(TOKEN_KEY, res.token);
         this.token.set(res.token);
       })
     );
   }
 
   logout(): void {
-    localStorage.removeItem(TOKEN_KEY);
+    sessionStorage.removeItem(TOKEN_KEY);
     this.token.set(null);
     void this.router.navigateByUrl('/login');
   }
@@ -42,6 +41,6 @@ export class AuthService {
   }
 
   private readToken(): string | null {
-    return localStorage.getItem(TOKEN_KEY);
+    return sessionStorage.getItem(TOKEN_KEY);
   }
 }

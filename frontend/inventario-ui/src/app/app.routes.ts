@@ -19,6 +19,18 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./pages/movimiento/movimiento.component').then((m) => m.MovimientoComponent)
   },
+  {
+    path: 'productos/nuevo',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./pages/producto-form/producto-form.component').then((m) => m.ProductoFormComponent)
+  },
+  {
+    path: 'productos/:id/editar',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./pages/producto-form/producto-form.component').then((m) => m.ProductoFormComponent)
+  },
   { path: '', pathMatch: 'full', redirectTo: 'inventario' },
   { path: '**', redirectTo: 'inventario' }
 ];

@@ -125,6 +125,120 @@ public class InventoryFacadeTests
         Assert.Empty(observer.Events);
     }
 
+    [Fact]
+    public async Task CrearProducto_inserts_row()
+    {
+        await using var db = CreateContext();
+        var facade = CreateFacade(db, out _);
+        var r = await facade.CrearProductoAsync(
+            new CreateProductoRequest { Nombre = "  Nuevo  ", Cantidad = 7 },
+            CancellationToken.None);
+
+        Assert.True(r.Exito);
+        Assert.Equal(201, r.CodigoHttp);
+        Assert.NotNull(r.Valor);
+        Assert.Equal("Nuevo", r.Valor!.Nombre);
+        Assert.Equal(7, r.Valor.Cantidad);
+    }
+
+    [Fact]
+    public async Task CrearProducto_duplicate_name_returns_conflict()
+    {
+        await using var db = CreateContext();
+        db.Productos.Add(new Producto { Nombre = "Duplicado", Cantidad = 1 });
+        await db.SaveChangesAsync();
+
+        var facade = CreateFacade(db, out _);
+        var r = await facade.CrearProductoAsync(
+            new CreateProductoRequest { Nombre = "duplicado", Cantidad = 0 },
+            CancellationToken.None);
+
+        Assert.False(r.Exito);
+        Assert.Equal(409, r.CodigoHttp);
+    }
+
+    [Fact]
+    public async Task ActualizarProducto_updates_row()
+    {
+        await using var db = CreateContext();
+        db.Productos.Add(new Producto { Id = 10, Nombre = "Antes", Cantidad = 2 });
+        await db.SaveChangesAsync();
+
+        var facade = CreateFacade(db, out _);
+        var r = await facade.ActualizarProductoAsync(
+            10,
+            new UpdateProductoRequest { Nombre = "Después" },
+            CancellationToken.None);
+
+        Assert.True(r.Exito);
+        Assert.Equal("Después", db.Productos.Single().Nombre);
+        Assert.Equal(2, db.Productos.Single().Cantidad);
+    }
+
+    [Fact]
+    public async Task ActualizarProducto_duplicate_name_returns_conflict()
+    {
+        await using var db = CreateContext();
+        db.Productos.AddRange(
+            new Producto { Id = 1, Nombre = "A", Cantidad = 1 },
+            new Producto { Id = 2, Nombre = "B", Cantidad = 2 });
+        await db.SaveChangesAsync();
+
+        var facade = CreateFacade(db, out _);
+        var r = await facade.ActualizarProductoAsync(
+            2,
+            new UpdateProductoRequest { Nombre = "a" },
+            CancellationToken.None);
+
+        Assert.False(r.Exito);
+        Assert.Equal(409, r.CodigoHttp);
+    }
+
+    [Fact]
+    public async Task EliminarProducto_removes_row_when_stock_zero()
+    {
+        await using var db = CreateContext();
+        db.Productos.Add(new Producto { Id = 3, Nombre = "X", Cantidad = 0 });
+        await db.SaveChangesAsync();
+
+        var facade = CreateFacade(db, out _);
+        var r = await facade.EliminarProductoAsync(3, CancellationToken.None);
+
+        Assert.True(r.Exito);
+        Assert.Equal(204, r.CodigoHttp);
+        Assert.Empty(db.Productos);
+    }
+
+    [Fact]
+    public async Task EliminarProducto_nonzero_stock_returns_conflict()
+    {
+        await using var db = CreateContext();
+        db.Productos.Add(new Producto { Id = 7, Nombre = "ConStock", Cantidad = 5 });
+        await db.SaveChangesAsync();
+
+        var facade = CreateFacade(db, out _);
+        var r = await facade.EliminarProductoAsync(7, CancellationToken.None);
+
+        Assert.False(r.Exito);
+        Assert.Equal(409, r.CodigoHttp);
+        Assert.Single(db.Productos);
+        Assert.Equal(5, db.Productos.Single().Cantidad);
+    }
+
+    [Fact]
+    public async Task GetProductoById_returns_row()
+    {
+        await using var db = CreateContext();
+        db.Productos.Add(new Producto { Id = 5, Nombre = "Item", Cantidad = 11 });
+        await db.SaveChangesAsync();
+
+        var facade = CreateFacade(db, out _);
+        var p = await facade.GetProductoByIdAsync(5, CancellationToken.None);
+
+        Assert.NotNull(p);
+        Assert.Equal("Item", p!.Nombre);
+    }
+
     private sealed class CapturingObserver : IInventoryObserver
     {
         public List<InventoryMovimientoEvent> Events { get; } = new();

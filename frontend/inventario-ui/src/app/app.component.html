@@ -1,17 +1,112 @@
-<div class="layout">
-  <header class="topbar">
-    <a routerLink="/inventario" class="brand">CCL Inventario</a>
-    <nav>
-      @if (auth.isAuthenticated()) {
-        <a routerLink="/inventario" routerLinkActive="active">Inventario</a>
-        <a routerLink="/movimiento" routerLinkActive="active">Movimiento</a>
-        <button type="button" class="linkish" (click)="auth.logout()">Salir</button>
-      } @else {
-        <a routerLink="/login" routerLinkActive="active">Ingresar</a>
-      }
-    </nav>
-  </header>
-  <main class="content">
+@if (auth.isAuthenticated()) {
+  <div class="shell">
+    <div
+      class="shell__backdrop"
+      [class.shell__backdrop--visible]="mobileNavOpen()"
+      (click)="closeMobileNav()"
+      aria-hidden="true"
+    ></div>
+
+    <aside id="app-sidebar" class="sidebar" [class.sidebar--open]="mobileNavOpen()">
+      <div class="sidebar__brand">
+        <img
+          class="sidebar__logo"
+          src="/branding/ccl-logo.png"
+          width="220"
+          height="72"
+          alt="Corporación Colombiana de Logística"
+          decoding="async"
+        />
+      </div>
+
+      <p
+        class="sidebar__tagline"
+        data-tooltip="Eslogan institucional de CCL (solo referencia visual)"
+        data-tooltip-side="east"
+      >
+        Logística en todo
+      </p>
+
+      <nav class="sidebar__nav" aria-label="Principal">
+        <a
+          routerLink="/inventario"
+          routerLinkActive="sidebar__link--active"
+          [routerLinkActiveOptions]="{ exact: true }"
+          class="sidebar__link"
+          data-tooltip="Abre el listado de productos y cantidades en stock. Desde allí puede agregar, editar nombre o abrir movimientos."
+          data-tooltip-side="east"
+          (click)="closeMobileNav()"
+        >
+          <span class="sidebar__icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M3 7h18M3 12h18M3 17h18" stroke-linecap="round" />
+            </svg>
+          </span>
+          <span>Inventario</span>
+        </a>
+        <a
+          routerLink="/movimiento"
+          routerLinkActive="sidebar__link--active"
+          class="sidebar__link"
+          data-tooltip="Registre entradas (suman stock) o salidas (restan si hay unidades). Elija producto y cantidad."
+          data-tooltip-side="east"
+          (click)="closeMobileNav()"
+        >
+          <span class="sidebar__icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M7 16V4M17 8v12M7 8l5-4 5 4M7 16l5 4 5-4" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+          </span>
+          <span>Movimiento</span>
+        </a>
+      </nav>
+
+      <div class="sidebar__footer">
+        <button
+          type="button"
+          class="sidebar__logout"
+          data-tooltip="Cierra la sesión en este navegador. Deberá volver a ingresar usuario y clave."
+          data-tooltip-side="east"
+          (click)="auth.logout(); closeMobileNav()"
+        >
+          <span class="sidebar__icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+          </span>
+          Salir
+        </button>
+      </div>
+    </aside>
+
+    <div class="shell__main">
+      <header class="topbar">
+        <button
+          type="button"
+          class="topbar__menu"
+          (click)="toggleMobileNav()"
+          [attr.aria-expanded]="mobileNavOpen()"
+          aria-controls="app-sidebar"
+          data-tooltip="Abre o cierra el menú lateral (Inventario, Movimiento, Salir). En escritorio el menú suele estar siempre visible."
+          data-tooltip-side="north"
+        >
+          <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <path d="M4 6h16M4 12h16M4 18h16" stroke-linecap="round" />
+          </svg>
+        </button>
+        <div class="topbar__titles">
+          <span class="topbar__eyebrow">CCL · Prueba técnica</span>
+          <span class="topbar__title">Inventario digital</span>
+        </div>
+      </header>
+
+      <main class="page">
+        <router-outlet />
+      </main>
+    </div>
+  </div>
+} @else {
+  <div class="guest">
     <router-outlet />
-  </main>
-</div>
+  </div>
+}

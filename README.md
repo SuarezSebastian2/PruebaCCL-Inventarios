@@ -6,7 +6,7 @@ Aplicación web de **inventario** para la prueba técnica CCL: autenticación **
 
 | Herramienta | Notas |
 |-------------|--------|
-| [.NET SDK 9+ o 10+](https://dotnet.microsoft.com/download) | El proyecto compila con **`net9.0`**. Si solo tienes instalado el **runtime 10** y no el **runtime 9**, el `.csproj` incluye `RollForward` para poder ejecutar con el runtime mayor disponible. Para alinear el entorno con la prueba, instala también el [**runtime ASP.NET Core 9.0**](https://dotnet.microsoft.com/download/dotnet/9.0). |
+| [.NET SDK 9+ o 10+](https://dotnet.microsoft.com/download) | El proyecto compila con **`net9.0`**. Instala el [**runtime ASP.NET Core 9.0**](https://dotnet.microsoft.com/download/dotnet/9.0). |
 | [PostgreSQL](https://www.postgresql.org/download/) | Servidor local accesible con usuario/clave que configures. |
 | [Node.js 20+](https://nodejs.org/) | Para Angular y `npm`. |
 
@@ -20,15 +20,14 @@ Aplicación web de **inventario** para la prueba técnica CCL: autenticación **
 
 2. Ajusta la cadena en `backend/CclInventario.Api/appsettings.json` (`ConnectionStrings:Default`) con tu **host**, **puerto**, **usuario** y **contraseña**.
 
-3. Al **arrancar la API**, EF Core ejecuta `Database.EnsureCreatedAsync()`: crea la tabla **`productos`** (`id`, `nombre`, `cantidad`) **sin** cadena de migraciones compleja, según el enunciado.
+3. **Esquema `productos`:** al **arrancar la API**, EF Core ejecuta `Database.EnsureCreatedAsync()` y crea la tabla si la base existe. **O bien** puedes crear base + tabla con el script (ver paso 4) y luego arrancar la API.
 
-4. **Datos iniciales manuales:** con la base creada y la tabla ya existente, ejecuta el script SQL del repositorio (desde `psql`, pgAdmin o tu herramienta preferida):
+4. **Script SQL manual** `database/seed-manual.sql` (desde `psql`, pgAdmin, etc.):
 
-   ```text
-   database/seed-manual.sql
-   ```
+   - **BLOQUE 1** (solo conectado a la base **`postgres`**): crea la base `ccl_inventario` (omítelo si ya existe).
+   - **BLOQUE 2 y 3** (solo conectado a **`ccl_inventario`**): crea la tabla `productos` si no está (`IF NOT EXISTS`) e inserta datos de ejemplo.
 
-   El script es idempotente: solo inserta filas si la tabla `productos` está vacía.
+   El `INSERT` es idempotente: no duplica filas si la tabla ya tiene datos.
 
 ## Credenciales de demostración (login)
 
@@ -74,6 +73,18 @@ Endpoints principales (como en el enunciado):
 cd frontend/inventario-ui
 npm install
 npm start
+```
+
+**Lint (ESLint + reglas recomendadas de Angular):**
+
+```powershell
+npm run lint
+```
+
+**Tests unitarios (Karma, una corrida):**
+
+```powershell
+npm run test:ci
 ```
 
 Abre **http://localhost:4200**. La URL de la API está en `src/app/core/environment.ts` (`apiBaseUrl`); debe coincidir con la API (por defecto `http://localhost:5088`). La API tiene **CORS** habilitado para `http://localhost:4200`.

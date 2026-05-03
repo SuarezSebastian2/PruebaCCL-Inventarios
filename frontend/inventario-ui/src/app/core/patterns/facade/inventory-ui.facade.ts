@@ -1,6 +1,8 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { Observable, tap } from 'rxjs';
 import {
+  ActualizarProductoPayload,
+  CrearProductoPayload,
   InventarioApiService,
   MovimientoRequest,
   ProductoInventario
@@ -16,18 +18,33 @@ import { MovimientoMessageStrategyFactory } from '../strategy/movimiento-message
  */
 @Injectable({ providedIn: 'root' })
 export class InventoryUiFacade {
-  constructor(
-    private readonly api: InventarioApiService,
-    private readonly subject: InventorySubjectService,
-    private readonly correlation: CorrelationIdService,
-    private readonly messages: MovimientoMessageStrategyFactory,
-    consoleObserver: ConsoleInventoryUiObserver
-  ) {
-    this.subject.attach(consoleObserver);
+  private readonly api = inject(InventarioApiService);
+  private readonly subject = inject(InventorySubjectService);
+  private readonly correlation = inject(CorrelationIdService);
+  private readonly messages = inject(MovimientoMessageStrategyFactory);
+
+  constructor() {
+    this.subject.attach(inject(ConsoleInventoryUiObserver));
   }
 
   listInventario(): Observable<ProductoInventario[]> {
     return this.api.inventario();
+  }
+
+  obtenerProducto(id: number): Observable<ProductoInventario> {
+    return this.api.obtenerProducto(id);
+  }
+
+  crearProducto(body: CrearProductoPayload): Observable<ProductoInventario> {
+    return this.api.crearProducto(body);
+  }
+
+  actualizarProducto(id: number, body: ActualizarProductoPayload): Observable<ProductoInventario> {
+    return this.api.actualizarProducto(id, body);
+  }
+
+  eliminarProducto(id: number): Observable<void> {
+    return this.api.eliminarProducto(id);
   }
 
   registrarMovimiento(body: MovimientoRequest): Observable<ProductoInventario> {

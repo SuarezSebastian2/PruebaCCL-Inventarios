@@ -1,5 +1,6 @@
 using CclInventario.Api.Data;
 using CclInventario.Api.Dtos;
+using CclInventario.Api.Entities;
 using CclInventario.Api.Patterns.Observer;
 using CclInventario.Api.Patterns.Singleton;
 using CclInventario.Api.Patterns.Strategies;
@@ -102,4 +103,98 @@ public sealed class InventoryFacade : IInventoryFacade
 
         return InventoryFacadeMovimientoResult.Success(dto);
     }
+
+    public async Task<ProductoInventarioDto?> GetProductoByIdAsync(int id, CancellationToken ct)
+    {
+        var p = await _db.Productos.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id, ct).ConfigureAwait(false);
+        if (p is null)
+        {
+            return null;
+        }
+
+        return new ProductoInventarioDto { Id = p.Id, Nombre = p.Nombre, Cantidad = p.Cantidad };
+    }
+
+    public async Task<InventoryFacadeCrudResult> CrearProductoAsync(CreateProductoRequest request, CancellationToken ct)
+    {
+        var nombreNorm = NormalizeNombre(request.Nombre);
+        if (nombreNorm.Length == 0)
+        {
+            return InventoryFacadeCrudResult.BadRequest(new { message = "El nombre no puede quedar vacío." });
+        }
+
+        if (await ExistsNombreAsync(nombreNorm, excludeId: null, ct).ConfigureAwait(false))
+        {
+            return InventoryFacadeCrudResult.Conflict(new { message = "Ya existe un producto con ese nombre." });
+        }
+
+        var entity = new Producto { Nombre = nombreNorm, Cantidad = request.Cantidad };
+        _db.Productos.Add(entity);
+        await _db.SaveChangesAsync(ct).ConfigureAwait(false);
+
+        return InventoryFacadeCrudResult.Created(ToDto(entity));
+    }
+
+    public async Task<InventoryFacadeCrudResult> ActualizarProductoAsync(int id, UpdateProductoRequest request, CancellationToken ct)
+    {
+        var nombreNorm = NormalizeNombre(request.Nombre);
+        if (nombreNorm.Length == 0)
+        {
+            return InventoryFacadeCrudResult.BadRequest(new { message = "El nombre no puede quedar vacío." });
+        }
+
+        var entity = await _db.Productos.FirstOrDefaultAsync(x => x.Id == id, ct).ConfigureAwait(false);
+        if (entity is null)
+        {
+            return InventoryFacadeCrudResult.NotFound(new { message = $"No existe producto con id {id}." });
+        }
+
+        if (await ExistsNombreAsync(nombreNorm, excludeId: id, ct).ConfigureAwait(false))
+        {
+            return InventoryFacadeCrudResult.Conflict(new { message = "Ya existe otro producto con ese nombre." });
+        }
+
+        entity.Nombre = nombreNorm;
+        await _db.SaveChangesAsync(ct).ConfigureAwait(false);
+
+        return InventoryFacadeCrudResult.Ok(ToDto(entity));
+    }
+
+    public async Task<InventoryFacadeCrudResult> EliminarProductoAsync(int id, CancellationToken ct)
+    {
+        var entity = await _db.Productos.FirstOrDefaultAsync(x => x.Id == id, ct).ConfigureAwait(false);
+        if (entity is null)
+        {
+            return InventoryFacadeCrudResult.NotFound(new { message = $"No existe producto con id {id}." });
+        }
+
+        if (entity.Cantidad != 0)
+        {
+            return InventoryFacadeCrudResult.Conflict(new
+            {
+                message = "No se puede eliminar el producto mientras tenga stock. Deje la cantidad en 0 con salidas o movimientos y vuelva a intentar."
+            });
+        }
+
+        _db.Productos.Remove(entity);
+        await _db.SaveChangesAsync(ct).ConfigureAwait(false);
+
+        return InventoryFacadeCrudResult.Deleted();
+    }
+
+    private static string NormalizeNombre(string nombre) => nombre.Trim();
+
+    private async Task<bool> ExistsNombreAsync(string nombreNormalized, int? excludeId, CancellationToken ct)
+    {
+        var key = nombreNormalized.ToUpperInvariant();
+        return await _db.Productos
+            .AsNoTracking()
+            .Where(p => excludeId == null || p.Id != excludeId)
+            .AnyAsync(p => p.Nombre.ToUpper() == key, ct)
+            .ConfigureAwait(false);
+    }
+
+    /// <summary>Nombres se comparan sin distinguir mayúsculas para evitar duplicados lógicos.</summary>
+    private static ProductoInventarioDto ToDto(Producto p) =>
+        new() { Id = p.Id, Nombre = p.Nombre, Cantidad = p.Cantidad };
 }

@@ -1,0 +1,100 @@
+<section class="panel animate-in">
+  <header class="panel__head">
+    <div>
+      <a
+        routerLink="/inventario"
+        class="panel__back"
+        data-tooltip="Volver al listado de inventario sin guardar cambios en este formulario (si pulsa el enlace)."
+        >← Inventario</a
+      >
+      <h1
+        class="panel__title"
+        [attr.data-tooltip]="
+          productoId != null
+            ? 'Edición: solo el nombre. El stock se modifica en Movimiento. Alta nueva: nombre y cantidad inicial.'
+            : 'Alta: defina nombre y cantidad inicial del producto. Luego use Movimiento para ajustar stock.'
+        "
+      >
+        {{ titulo }}
+      </h1>
+      <p class="panel__sub">
+        @if (productoId != null) {
+          Solo puede cambiar el nombre. La cantidad en stock se ajusta en Movimiento (entradas y salidas).
+        } @else {
+          Defina el nombre y la cantidad inicial. Luego puede ajustar con movimientos.
+        }
+      </p>
+    </div>
+  </header>
+
+  @if (loadingProducto) {
+    <div class="skeleton" role="status">
+      <div class="skeleton__row"></div>
+      <div class="skeleton__row"></div>
+    </div>
+  } @else {
+    <form class="form" [formGroup]="form" (ngSubmit)="enviar()">
+      <div class="form__grid">
+        <label
+          class="field field--grow"
+          data-tooltip="Texto que verá en el listado de inventario. Obligatorio; máximo 200 caracteres."
+        >
+          <span class="field__label">Nombre del producto</span>
+          <input
+            type="text"
+            formControlName="nombre"
+            maxlength="200"
+            placeholder="Ej. Guantes seguridad talla L"
+          />
+          @if (form.controls.nombre.invalid && form.controls.nombre.touched) {
+            <span class="field__hint msg msg--inline msg--err">Indique un nombre entre 1 y 200 caracteres.</span>
+          }
+        </label>
+
+        @if (productoId != null) {
+          <div
+            class="field field--narrow field--readonly"
+            aria-live="polite"
+            data-tooltip="Stock actual solo lectura. Ajústelo con Movimiento (entradas suman, salidas restan)."
+          >
+            <span class="field__label">Cantidad en stock</span>
+            <p class="field__readonly-value">
+              {{ stockActual ?? '—' }}
+            </p>
+            <span class="field__hint">Solo lectura. Use <a routerLink="/movimiento" [queryParams]="{ productoId: productoId }">Movimiento</a> para entradas o salidas.</span>
+          </div>
+        } @else {
+          <label
+            class="field field--narrow"
+            data-tooltip="Cantidad inicial al crear el producto (entero ≥ 0). Después el stock solo cambia con movimientos."
+          >
+            <span class="field__label">Cantidad inicial</span>
+            <input type="number" min="0" formControlName="cantidad" />
+            @if (form.controls.cantidad.invalid && form.controls.cantidad.touched) {
+              <span class="field__hint msg msg--inline msg--err">Use un número entero mayor o igual a 0.</span>
+            }
+          </label>
+        }
+      </div>
+
+      <div class="form__actions">
+        <a
+          routerLink="/inventario"
+          class="btn btn--ghost link-btn"
+          data-tooltip="Descarta este formulario y vuelve al inventario (los cambios no guardados se pierden)."
+          >Cancelar</a
+        >
+        <button
+          type="submit"
+          class="btn btn--primary"
+          [disabled]="submitting"
+          [attr.data-tooltip]="
+            submitting ? 'Guardando en el servidor…' : (productoId != null ? 'Guarda solo el nombre del producto.' : 'Crea el producto con los datos indicados.')
+          "
+        >
+          {{ submitting ? 'Guardando…' : productoId != null ? 'Guardar cambios' : 'Crear producto' }}
+        </button>
+      </div>
+    </form>
+  }
+</section>
