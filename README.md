@@ -6,7 +6,7 @@ Aplicación web de **inventario** para la prueba técnica CCL: autenticación **
 
 | Herramienta | Notas |
 |-------------|--------|
-| [.NET SDK 9+ o 10+](https://dotnet.microsoft.com/download) | El proyecto compila con **`net9.0`**. Si solo tienes instalado el **runtime 10** y no el **runtime 9**, el `.csproj` incluye `RollForward` para poder ejecutar con el runtime mayor disponible. Para alinear el entorno con la prueba, instala también el [**runtime ASP.NET Core 9.0**](https://dotnet.microsoft.com/download/dotnet/9.0). |
+| [.NET SDK 9+ o 10+](https://dotnet.microsoft.com/download) | El proyecto compila con **`net9.0`**. Instala el [**runtime ASP.NET Core 9.0**](https://dotnet.microsoft.com/download/dotnet/9.0). |
 | [PostgreSQL](https://www.postgresql.org/download/) | Servidor local accesible con usuario/clave que configures. |
 | [Node.js 20+](https://nodejs.org/) | Para Angular y `npm`. |
 
